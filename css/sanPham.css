@@ -15,7 +15,7 @@ body {
     width: 1200px;
     background: white;
     margin: 0 auto;
-    padding: 16px;
+    padding: 16px 0;
     font-size: 14px;
     color: #555;
 }
@@ -87,7 +87,7 @@ body {
     background: #f8f8f8;
 }
 
-/* === YÊU THÍCH === */
+/* Nút yêu thích */
 .like-btn {
     color: #a19f9f;
 }
@@ -116,7 +116,7 @@ body {
     font-weight: 900; /* fa-solid */
 }
 
-/* === THÔNG SỐ === */
+/* Nút thông số */
 .spec-btn {
     color: #666;
 }
@@ -130,7 +130,7 @@ body {
     background: #f8f8f8;
 }
 
-/* === ĐÁNH GIÁ === */
+/* Nút đánh giá */
 .rating {
     gap: 4px;
     padding: 4px 0;
@@ -236,11 +236,10 @@ body {
 
 .thumbnails-wrapper img:hover,
 .thumbnails-wrapper img.active {
-    /*border: #ff3366;*/
     border: 2px solid #ff3366;
 }
 
-/* === CAM KẾT SẢN PHẨM (Commitment Section) === */
+/* Cam kết sản phẩm */
 .product-commitment {
     margin-top: 24px; /* Khoảng cách với phần trên (thumbnail) */
     padding-top: 8px;
@@ -266,17 +265,15 @@ body {
     padding: 15px;
     border-radius: 12px;
     flex-direction: column;
-    display: flex; /* Dùng flexbox để căn icon và text */
+    display: flex; /* Dùng flex để căn icon và text */
     gap: 15px;
     align-items: flex-start; /* Icon và text bắt đầu từ trên cùng */
 
-    /* Tạo kiểu khung tương tự ảnh mẫu: border xám nhạt hoặc bóng mờ */
     border: 1px solid #eee;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .commitment-icon-box {
-    /* Icon box (Nền trắng/xám và icon đỏ) */
     width: 38px;
     height: 38px;
     border-radius: 8px;
@@ -285,13 +282,12 @@ body {
     justify-content: center;
     align-items: center;
 
-    /* Viền đỏ mờ */
     border: 1px solid #f09292;
 }
 
 .commitment-icon-box i {
     font-size: 18px;
-    color: #db1d32; /* Màu đỏ nổi bật cho icon */
+    color: #db1d32;
 }
 
 .commitment-item p {
@@ -303,7 +299,7 @@ body {
 }
 
 .commitment-item p strong {
-    font-weight: 700; /* Đảm bảo chữ in đậm nổi bật */
+    font-weight: 700;
 }
 
 /* RIGHT SIDE */
@@ -312,7 +308,7 @@ body {
     background: white;
 }
 
-/* Price Box */
+/* Khung giá sản phẩm */
 .price-box {
     width: 258px;
     border: 1px solid #c9d8ff; /* Màu viền xanh nhạt hơn */
@@ -332,65 +328,53 @@ body {
 }
 
 .price-box .price {
-    /*font-size: 26px;*/
-    /*font-weight: bold;*/
-    /*color: red;*/
-
     font-size: 24px; /* Tăng kích thước chữ giá hiện tại */
     font-weight: 700; /* Đậm */
     color: black; /* Màu đen đậm */
 
-    /* Thiết lập này quan trọng để giá và giá cũ nằm trên cùng 1 hàng */
-    display: inline-block;
+
+    display: inline-block; /* Dùng để giá và giá cũ nằm trên cùng 1 hàng */
     margin-right: 16px; /* Khoảng cách với giá cũ */
 }
 
 .price-box .old-price {
-    /*font-size: 15px;*/
-    /*text-decoration: line-through;*/
-    /*color: #888;*/
-
     font-size: 16px; /* Kích thước chữ giá cũ */
     text-decoration: line-through;
     color: #999; /* Màu xám nhạt hơn */
 
-    /* Thiết lập này quan trọng */
     display: inline-block;
 }
 
-/* Version Options */
+/* Các phiên bản */
 .version-box h4 {
     margin-bottom: 8px;
 }
 
-/* Version List */
+/* Danh sách các phiên bản đồng dạng với sản phẩm */
 .version-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px; /* Tăng gap để các khung cách nhau xa hơn */
+    gap: 12px;
 }
 
-.version-list a { /* <== Dùng selector <a> */
-    /* Định dạng khung */
+.version-list a {
     padding: 8px 24px; /* Tăng padding để khung lớn hơn */
     border: 1px solid #ddd;
     background: white;
-    border-radius: 8px; /* Bo góc */
+    border-radius: 8px;
     cursor: pointer;
 
-    /* Định dạng chữ */
-    font-size: 16px; /* Chữ lớn hơn */
-    font-weight: 700; /* Đậm */
+    font-size: 16px;
+    font-weight: 700;
     color: #333;
-    text-decoration: none; /* Bỏ gạch chân link */
+    text-decoration: none;
 
-    /* Thiết lập Flexbox để căn giữa nội dung nếu cần */
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* Version ACTIVE */
+/* Xác định đang chọn sản phẩm nào */
 .version-list a.active {
     background: #f8cdd0; /* Nền trắng */
     color: #000;
@@ -398,7 +382,7 @@ body {
     border-width: 2px; /* Viền dày hơn */
 }
 
-/* Shipping Info */
+/* Thông tin vận chuyển */
 .shipping-box {
     margin-top: 18px;
     background: #f1f1f1;
@@ -417,7 +401,7 @@ body {
     font-weight: 600;
 }
 
-/* Buy Buttons */
+/* Nút mua sắm */
 .buy-box {
     margin-top: 20px;
     display: flex;
@@ -451,12 +435,12 @@ body {
     margin-right: 5px;
 }
 
-/* Scroll Bar Hide for thumbnails */
+/* Ẩn thanh cuộn */
 .thumbnails-wrapper::-webkit-scrollbar {
     display: none;
 }
 
-/* --- PHẦN MÔ TẢ SẢN PHẨM FULL WIDTH (Dưới 2 cột) --- */
+/* Mô tả sản phẩm (nằm ở dưới phần chia thành 2 cột) */
 .product-description {
     width: 1200px;
     background: white;
@@ -475,10 +459,10 @@ body {
 }
 
 .description-content {
-    background-color: #f7f7f8; /* Màu xám nhạt */
-    padding: 16px; /* Thêm padding xung quanh nội dung */
-    border-radius: 12px; /* Bo góc nhẹ */
-    border: 1px solid #eee; /* Viền mỏng */
+    background-color: #f7f7f8;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #eee;
     margin-bottom: 20px;
 }
 
@@ -507,26 +491,22 @@ body {
 }
 
 
-/* --- PHẦN SẢN PHẨM LIÊN QUAN (CÓ THỂ BẠN CŨNG THÍCH) --- */
+/* Sản phẩm bạn có thể thích */
 
 .related-products-section {
-    /*width: 1200px;*/
-    /*padding-bottom: 32px;*/
-    /*margin: 24px auto 8px auto; !* Căn giữa và tạo khoảng cách *!*/
-
     max-width: 1200px;
     margin: 0 auto;
     padding: 0;
 }
 
 .related-products-section .section-title {
-    font-size: 18px; /* Tiêu đề lớn hơn một chút */
+    font-size: 18px;
     font-weight: 700;
     color: #333;
     margin-bottom: 14px;
 }
 
-/* KHỐI PRODUCT CARD */
+/* Khối khung sản phẩm */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -622,7 +602,7 @@ body {
     -webkit-box-orient: vertical;
 }
 
-/* Price */
+/* Giá */
 .price-section {
     display: flex;
     height: 26.4px;
@@ -652,9 +632,9 @@ body {
     gap: 8px;
 }
 
-/* --- MODAL THÔNG SỐ KỸ THUẬT --- */
+/* Bảng thông số kĩ thuật của sản phẩm */
 
-/* Modal nền đen mờ bao phủ toàn màn hình */
+/* Nền đen mờ bao phủ toàn màn hình */
 .modal {
     display: none; /* Mặc định ẩn */
     position: fixed; /* Nổi trên tất cả */
@@ -667,10 +647,10 @@ body {
     background-color: rgba(0, 0, 0, 0.5); /* Nền đen mờ */
 }
 
-/* Khung chứa nội dung Modal */
+/* Khung chứa nội dung */
 .modal-content {
     background-color: #fff;
-    margin: 5% auto; /* Canh giữa và từ trên xuống */
+    margin: 5% auto; /* Canh ở giữa */
     padding: 0;
     border-radius: 12px;
     width: 700px; /* Chiều rộng rộng hơn */
@@ -717,7 +697,7 @@ body {
     padding: 20px 25px 25px 25px;
 }
 
-/* Định kiểu cho section tiêu đề */
+/* Tiêu đề */
 .spec-section h3 {
     font-size: 16px;
     font-weight: 700;
@@ -726,11 +706,10 @@ body {
     margin-bottom: 12px;
 }
 
-/* Container cho các item trong section - dạng table */
+/* Container cho các item trong section - dạng bảng */
 .spec-items {
     display: table;
     width: 100%;
-    /*border-collapse: collapse;*/
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     overflow: hidden;
@@ -780,70 +759,7 @@ body {
     margin: 20px 0;
 }
 
-/* Định kiểu cho section tiêu đề */
-.spec-section h3 {
-    font-size: 16px;
-    font-weight: 700;
-    color: #333;
-    margin-top: 0;
-    margin-bottom: 12px;
-}
-
-/* Container cho các item trong section - dạng table */
-.spec-items {
-    display: table;
-    width: 100%;
-    /*border-collapse: collapse;*/
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-/* Mỗi item thông số - hiển thị như table row */
-.spec-item {
-    display: table-row;
-}
-
-/* Cột bên TRÁI: nền xám nhạt */
-.spec-label {
-    display: table-cell;
-    width: 240px; /* Độ rộng cố định cho cột label */
-    padding: 12px 16px;
-    background-color: #f5f5f5;
-    font-weight: 500;
-    font-size: 14px;
-    color: #666;
-    border-bottom: 1px solid #e0e0e0;
-    vertical-align: middle;
-}
-
-/* Cột bên PHẢI: nền trắng */
-.spec-value {
-    display: table-cell;
-    padding: 12px 16px;
-    background-color: #fff;
-    font-weight: 400;
-    font-size: 14px;
-    color: #333;
-    border-bottom: 1px solid #e0e0e0;
-    border-left: 1px solid #e0e0e0;
-    vertical-align: middle;
-}
-
-/* Loại bỏ đường kẻ cuối cùng trong section */
-.spec-item:last-child .spec-label,
-.spec-item:last-child .spec-value {
-    border-bottom: none;
-}
-
-/* Đường phân cách giữa các section */
-.spec-hr {
-    border: none;
-    border-top: 1px solid #e0e0e0;
-    margin: 20px 0;
-}
-
-/* === PHẦN ĐÁNH GIÁ SẢN PHẨM === */
+/* Phần đánh giá sản phẩm */
 .product-reviews-section {
     width: 1200px;
     margin: 40px auto;
@@ -1372,7 +1288,7 @@ body {
     color: white;
 }
 
-/* === NÚT LÊN ĐẦU TRANG === */
+/* Nút lên đầu trang */
 .btn-scroll-top {
     position: fixed;
     bottom: 100px;
