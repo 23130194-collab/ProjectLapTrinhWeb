@@ -356,7 +356,7 @@ body {
     font-weight: 600;
 }
 
-/* Hiển thị sản phẩm - SỬA LỖI: 5 sản phẩm một hàng */
+/* Hiển thị sản phẩm */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -460,7 +460,7 @@ body {
 
 .current-price {
     font-size: 1.1rem;
-    color: #d32f2f;
+        color: #d32f2f;
     font-weight: 700;
 }
 
@@ -608,5 +608,4 @@ body {
 .ellipsis {
     color: #999;
     padding: 0 4px;
-
 }
