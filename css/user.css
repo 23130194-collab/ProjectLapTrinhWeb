@@ -184,6 +184,10 @@ body {
     cursor: pointer;
 }
 
+.menu a{
+    text-decoration: none;
+}
+
 .menu-item.active {
     background: var(--light-accent);
     color: var(--accent-dark);
@@ -214,6 +218,11 @@ body {
     gap: 20px;
     border-bottom: 1px solid var(--border);
     margin-bottom: 16px;
+}
+
+.tabs a{
+    text-decoration: none;
+
 }
 
 .tab {
@@ -403,6 +412,7 @@ body {
     display: flex;
     gap: 12px;
     align-items: center;
+    cursor: pointer;
 }
 
 .linked span {
@@ -585,18 +595,6 @@ p {
 }
 
 /* Thẻ chi tiết chung */
-.detail-card {
-    margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06); /* Shadow mới */
-}
-
-.card-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin: 0 0 20px 0;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
-}
 
 
 .overview-header {
@@ -826,4 +824,10 @@ p {
 
 .section.active {
     display: block;
+}
+html {
+    overflow-y: scroll; /* luôn hiển thị thanh cuộn */
+}
+.small-link {
+    text-decoration: none;
 }
