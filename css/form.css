@@ -28,6 +28,7 @@ body {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     text-align: center;
     transition: all 0.3s ease;
+
 }
 
 .login-modal:hover,
@@ -71,12 +72,16 @@ h2 {
 .login-btn,
 .signup-btn,
 .forgot-password-btn {
+    display: block;
     width: 100%;
+    text-align: center;
+    box-sizing: border-box;
     padding: 13px;
     border: none;
     border-radius: 10px;
     background-color: #ff4400;
     color: white;
+    text-decoration: none;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;

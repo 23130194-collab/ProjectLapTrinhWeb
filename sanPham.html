@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mainboard MSI B760M Gaming WIFI DDR5</title>
+    <title>Sản phẩn | TechNova</title>
     <link rel="stylesheet" href="css/sanPham.css">
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/footer.css">
@@ -22,9 +22,9 @@
 
         <nav class="nav-links">
             <a href="home.html" class="active">Trang chủ</a>
-            <a href="gioithieu.html">Giới thiệu</a>
+            <a href="gioiThieu.html">Giới thiệu</a>
             <a href="#" id="category-toggle">Danh mục</a>
-            <a href="lienhe.html">Liên hệ</a>
+            <a href="lienHe.html">Liên hệ</a>
         </nav>
 
         <div class="search-box">
@@ -251,7 +251,8 @@
 
                 <h4>Đến từ thương hiệu Kingston nổi tiếng cùng dung lượng lên đến 8GB</h4>
                 <p>Thanh RAM Kingston Sodimm 1.2V 8GB 3200MHz là sản phẩm của tập đoàn Kingston Technology đến từ Mỹ.
-                    Đây là tập đoàn được thành lập từ năm 1987 là thương hiệu sản xuất bộ nhớ hàng đầu thế giới, chiếm hơn 50%
+                    Đây là tập đoàn được thành lập từ năm 1987 là thương hiệu sản xuất bộ nhớ hàng đầu thế giới, chiếm
+                    hơn 50%
                     thị phần và là thương hiệu được yêu thích và tin dùng tại Châu Á – Thái Bình Dương.</p>
                 <p>Thanh RAM Kingston Sodimm 1.2V 8GB 3200MHz có dung lượng lên đến 8GB, đây là con số phù hợp cho những
                     ai có nhu cầu nâng cấp dung lượng cho laptop của mình, hoàn toàn đủ khả năng để bạn có thể tải thêm
@@ -266,10 +267,12 @@
 
                 <h4>Xung bus cực cao lên đến 3200 MHz cùng khả năng tiết kiệm năng lượng</h4>
                 <p>Thanh RAM Kingston Sodimm 1.2V 8GB 3200MHz có xung bus lên đến 3200 MHz, với mức xung bus này máy bạn
-                    sẽ xử lí được lưu lượng dữ liệu lơn hơn với thời gian nhanh hơn. Xung bus của ram Kingston càng cao thì
+                    sẽ xử lí được lưu lượng dữ liệu lơn hơn với thời gian nhanh hơn. Xung bus của ram Kingston càng cao
+                    thì
                     máy tính của bạn sẽ càng xử lí được mức lưu lượng dữ liệu cao hơn.</p>
                 <p>Ngoài ra, thanh RAM DDR4 đến từ thương hiệu Kingston Sodimm sử dụng hiệu điện thế 1.2V giúp tiết kiệm
-                    20% năng lượng so với DDR3 và tiết kiệm lên đến 40% tổng năng lượng tiêu thụ giúp pin máy tính bạn sẽ
+                    20% năng lượng so với DDR3 và tiết kiệm lên đến 40% tổng năng lượng tiêu thụ giúp pin máy tính bạn
+                    sẽ
                     giữ được tuổi thọ tốt hơn rất nhiều.</p>
             </div>
         </div>
@@ -441,14 +444,29 @@
             </div>
 
             <div class="reviews-filter">
-                <button class="filter-btn active">Tất cả</button>
-                <button class="filter-btn">Có hình ảnh</button>
-                <button class="filter-btn">Đã mua hàng</button>
-                <button class="filter-btn">5 sao</button>
-                <button class="filter-btn">4 sao</button>
-                <button class="filter-btn">3 sao</button>
-                <button class="filter-btn">2 sao</button>
-                <button class="filter-btn">1 sao</button>
+                <input type="radio" name="review-filter" id="filter-all" class="filter-input" checked>
+                <label for="filter-all" class="filter-btn">Tất cả</label>
+
+                <input type="radio" name="review-filter" id="filter-images" class="filter-input">
+                <label for="filter-images" class="filter-btn">Có hình ảnh</label>
+
+                <input type="radio" name="review-filter" id="filter-purchased" class="filter-input">
+                <label for="filter-purchased" class="filter-btn">Đã mua hàng</label>
+
+                <input type="radio" name="review-filter" id="filter-5star" class="filter-input">
+                <label for="filter-5star" class="filter-btn">5 sao</label>
+
+                <input type="radio" name="review-filter" id="filter-4star" class="filter-input">
+                <label for="filter-5star" class="filter-btn">4 sao</label>
+
+                <input type="radio" name="review-filter" id="filter-3star" class="filter-input">
+                <label for="filter-5star" class="filter-btn">3 sao</label>
+
+                <input type="radio" name="review-filter" id="filter-2star" class="filter-input">
+                <label for="filter-5star" class="filter-btn">2 sao</label>
+
+                <input type="radio" name="review-filter" id="filter-1star" class="filter-input">
+                <label for="filter-5star" class="filter-btn">1 sao</label>
             </div>
 
             <div class="reviews-list">
@@ -536,27 +554,38 @@
 
                     <div class="review-rating-select">
                         <h4>Đánh giá chung</h4>
+
                         <div class="rating-options">
-                            <div class="rating-option" data-rating="1">
+                            <input type="radio" name="rating" id="rate1" class="rating-input">
+                            <label for="rate1" class="rating-option">
                                 <i class="fa-solid fa-star"></i>
                                 <span>Rất tệ</span>
-                            </div>
-                            <div class="rating-option" data-rating="2">
+                            </label>
+
+                            <input type="radio" name="rating" id="rate2" class="rating-input">
+                            <label for="rate2" class="rating-option">
                                 <i class="fa-solid fa-star"></i>
                                 <span>Tệ</span>
-                            </div>
-                            <div class="rating-option" data-rating="3">
+                            </label>
+
+                            <input type="radio" name="rating" id="rate3" class="rating-input">
+                            <label for="rate3" class="rating-option">
                                 <i class="fa-solid fa-star"></i>
                                 <span>Bình thường</span>
-                            </div>
-                            <div class="rating-option" data-rating="4">
+                            </label>
+
+                            <input type="radio" name="rating" id="rate4" class="rating-input">
+                            <label for="rate4" class="rating-option">
                                 <i class="fa-solid fa-star"></i>
                                 <span>Tốt</span>
-                            </div>
-                            <div class="rating-option" data-rating="5">
+                            </label>
+
+                            <input type="radio" name="rating" id="rate5" class="rating-input" checked>
+                            <!-- Mặc định chọn 5 sao -->
+                            <label for="rate5" class="rating-option">
                                 <i class="fa-solid fa-star"></i>
                                 <span>Tuyệt vời</span>
-                            </div>
+                            </label>
                         </div>
                     </div>
 
@@ -599,7 +628,7 @@
         </div>
     </div>
 
-    <!-- Nút lên đầu trang -->
+    <!-- Nút cuộn lên đầu trang -->
     <button class="btn-scroll-top" id="btn-scroll-top">
         Lên đầu <i class="fa-solid fa-chevron-up"></i>
     </button>
@@ -608,6 +637,7 @@
 <footer>
     <div class="footer-container">
         <div class="footer-main-content">
+
             <div class="footer-col col-1">
                 <h4>Tổng đài hỗ trợ miễn phí</h4>
                 <ul>
@@ -617,10 +647,10 @@
 
                 <h4>Phương thức thanh toán</h4>
                 <div class="payment-methods">
-                    <img src="img/applePay.png" alt="Apple Pay">
-                    <img src="img/bidv.png" alt="BIDV">
-                    <img src="img/momo.jpg" alt="MoMo">
-                    <img src="img/ZaloPay.png" alt="Zalo Pay">
+                    <img src="https://i.postimg.cc/FsJvZGsX/apple-Pay.png" alt="Apple Pay">
+                    <img src="https://i.postimg.cc/pTTbnJ10/bidv.png" alt="BIDV">
+                    <img src="https://i.postimg.cc/L6fXXmPn/momo.jpg" alt="MoMo">
+                    <img src="https://i.postimg.cc/bYn803wR/Zalo-Pay.png" alt="Zalo Pay">
                 </div>
             </div>
 
@@ -628,7 +658,6 @@
                 <h4>Thông tin về chính sách</h4>
                 <ul>
                     <li>Mua hàng và thanh toán online</li>
-                    <li>Mua hàng trả góp online</li>
                     <li>Mua hàng trả góp online</li>
                     <li>Mua hàng trả góp bằng thẻ tín dụng</li>
                     <li>Chính sách giao hàng</li>
@@ -660,19 +689,20 @@
             <div class="footer-col col-4">
                 <h4>Kết nối với TechNova</h4>
                 <div class="connect-methods">
-                    <img src="img/youtube.jpg" alt="Youtube">
-                    <img src="img/facebook.png" alt="Facebook">
-                    <img src="img/tiktok.png" alt="TikTok">
-                    <img src="img/Zalo.png" alt="Zalo">
+                    <img src="https://i.postimg.cc/CLjh0my7/youtube.png" alt="Youtube">
+                    <img src="https://i.postimg.cc/rsBv3Xyx/facebook.png" alt="Facebook">
+                    <img src="https://i.postimg.cc/vBkYYKHS/tiktok.png" alt="TikTok">
+                    <img src="https://i.postimg.cc/k55qxC26/Zalo.png" alt="Zalo">
                 </div>
             </div>
+
         </div>
         <div class="footer-subscription"></div>
     </div>
 </footer>
 
 <script src="js/header.js"></script>
-<script src="js/product.js"></script>
+<script src="js/sanPham.js"></script>
 </body>
 
 </html>
