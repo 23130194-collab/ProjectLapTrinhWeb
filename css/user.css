@@ -96,7 +96,6 @@ body {
     border-right: none;
 }
 
-/* icon */
 .summary-icon {
     width: 40px;
     height: 40px;
@@ -125,7 +124,6 @@ body {
     color: #fa8c16 !important;
 }
 
-/* Text */
 .summary-text {
     display: flex;
     flex-direction: column;
@@ -201,7 +199,6 @@ body {
     text-align: center;
 }
 
-/* content */
 .content {
     background: var(--card);
     border-radius: 12px;
@@ -212,7 +209,6 @@ body {
     box-sizing: border-box;
 }
 
-/* Tabs */
 .tabs {
     display: flex;
     gap: 20px;
@@ -355,7 +351,6 @@ body {
     height: 12px
 }
 
-/* responsive note: user asked no responsive, but keep small fit */
 @media (max-width: 980px) {
     .container {
         padding: 16px
@@ -431,17 +426,14 @@ body {
     font-size: 12px;
 }
 
-/* Ẩn tất cả các section theo mặc định */
 .section {
     display: none;
 }
 
-/* Chỉ hiển thị section nào có class .active */
 .section.active {
     display: block;
 }
 
-/* lưới thông tin */
 .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -558,7 +550,6 @@ p {
 }
 
 
-/* Icon trái tim */
 .product-fav-heart {
     position: absolute;
     bottom: 16px;
@@ -593,9 +584,6 @@ p {
     color: #333;
     font-weight: 600;
 }
-
-/* Thẻ chi tiết chung */
-
 
 .overview-header {
     display: flex;
@@ -682,7 +670,6 @@ p {
     cursor: pointer;
 }
 
-/* 3. Thẻ Tiến độ */
 .progress-steps-new {
     display: flex;
     align-items: flex-start;
@@ -724,7 +711,6 @@ p {
     margin-top: 4px;
 }
 
-/* Đường kẻ */
 .progress-line {
     flex: 1;
     height: 2px;
@@ -812,12 +798,10 @@ p {
     justify-content: flex-end;
 }
 
-/* Đảm bảo chi tiết đơn hàng hiển thị */
 #order-details .order-details-view {
     display: block !important;
 }
 
-/* Đảm bảo section active hiển thị */
 .section {
     display: none;
 }
@@ -826,8 +810,20 @@ p {
     display: block;
 }
 html {
-    overflow-y: scroll; /* luôn hiển thị thanh cuộn */
+    overflow-y: scroll;
 }
 .small-link {
     text-decoration: none;
+}
+.btn-cancel {
+    background: #ea2e2e;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+}
+.btn-cancel:hover {
+    background: #d02626;
 }
