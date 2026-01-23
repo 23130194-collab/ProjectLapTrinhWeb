@@ -1,0 +1,48 @@
+package com.example.demo1.controller;
+
+import com.example.demo1.dao.ReviewDao;
+import com.example.demo1.model.User;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
+
+@WebServlet(name = "SubmitReviewServlet", value = "/submit-review")
+public class SubmitReviewServlet extends HttpServlet {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
+        HttpSession session = request.getSession(false);
+        User user = null;
+        if (session != null) {
+            user = (User) session.getAttribute("user");
+        }
+
+        if (user == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        try {
+            int productId = Integer.parseInt(request.getParameter("productId"));
+            int rating = Integer.parseInt(request.getParameter("rating"));
+            String comment = request.getParameter("comment");
+            int userId = user.getId();
+
+            ReviewDao reviewDao = new ReviewDao();
+            reviewDao.addReview(productId, userId, rating, comment);
+
+            response.sendRedirect("product-detail?id=" + productId);
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            response.sendRedirect("home.jsp");
+        }
+    }
+}
