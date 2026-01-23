@@ -108,7 +108,7 @@ public class OrderAdminServlet extends HttpServlet {
                     try {
                         String content = "Đơn hàng #" + order.getOrderCode() + " đã cập nhật trạng thái: " + status;
                         String link = "user";
-                        Notification noti = new Notification(order.getUserId(), content, link);
+                        Notification noti = new Notification(order.getUserId(), content, link, 0);
                         notiDao.insert(noti);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -125,4 +125,6 @@ public class OrderAdminServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + SERVLET_PATH);
         }
     }
+
+
 }

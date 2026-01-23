@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-@WebServlet(name = "AdminUploadProductServlet", value = "/admin-upload-product")
+@WebServlet(name = "AdminUploadProductServlet", value = "/admin/upload-product")
 public class AdminUploadProductServlet extends HttpServlet {
 
 //    @Override

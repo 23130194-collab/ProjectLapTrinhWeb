@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-@WebServlet(name = "AdminProductListServlet", value = "/admin-product-list")
+@WebServlet(name = "AdminProductListServlet", value = "/admin/products")
 public class AdminProductListServlet extends HttpServlet {
 
     private static final int PRODUCTS_PER_PAGE = 2; // Để 15 khi chạy thật, để 3 hoặc 5 để test
@@ -34,7 +34,7 @@ public class AdminProductListServlet extends HttpServlet {
                         int productId = Integer.parseInt(productIdStr);
                         ps.deleteProduct(productId);
                         // Redirect để tránh thực hiện lại hành động xóa khi tải lại trang
-                        response.sendRedirect(request.getContextPath() + "/admin-product-list");
+                        response.sendRedirect(request.getContextPath() + "/admin/products");
                         return;
                     } catch (NumberFormatException e) {
                         System.err.println("Invalid product ID for deletion: " + productIdStr);
@@ -102,7 +102,7 @@ public class AdminProductListServlet extends HttpServlet {
             request.setAttribute("errorMessage", "Lỗi khi tải danh sách sản phẩm: " + e.getMessage());
 //            request.getRequestDispatcher("/admin/error.jsp").forward(request, response);
             request.getSession().setAttribute("errorMessage", "Không thể xóa sản phẩm. Lỗi: " + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/admin-product-list");
+            response.sendRedirect(request.getContextPath() + "/admin/products");
         }
     }
 

@@ -10,12 +10,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TechNova Admin - Chi tiết khách hàng</title>
-    <link rel="stylesheet" href="${contextPath}/admin/admincss/customersList.css">
-    <link rel="stylesheet" href="${contextPath}/admin/admincss/detailsCustomers.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admincss/customersList.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admincss/detailsCustomers.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="${contextPath}/admin/admincss/adminNotification.css">
-    <link rel="stylesheet" href="${contextPath}/admin/admincss/headerAndSidebar.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admincss/adminNotification.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admincss/headerAndSidebar.css">
 
 </head>
 
@@ -47,65 +47,46 @@
 
 <!-- Header -->
 <header class="header">
-    <div class="search-box">
-        <span class="search-icon nav-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-        <input type="text" class="search-input" placeholder="Tìm kiếm">
-    </div>
-
     <div class="header-actions">
         <button class="notification-btn" id="notificationBtn">
             <i class="fa-solid fa-bell"></i>
-            <span class="notification-badge">3</span>
+            <c:if test="${adminUnreadCount > 0}">
+                <span class="notification-badge">${adminUnreadCount}</span>
+            </c:if>
         </button>
-
-        <!-- Thông báo -->
         <div class="notification-dropdown" id="notificationDropdown">
             <div class="notification-header">
                 <h3>Thông báo</h3>
             </div>
 
             <div class="notification-list">
-                <div class="notification-item">
-                    <div class="notification-icon" style="background: #5b86e5;">
-                        <i class="fa-solid fa-box-open"></i>
-                    </div>
-                    <div class="notification-content">
-                        <p class="notification-text">Đã thêm sản phẩm vào hệ thống <strong>thành công!</strong></p>
-                        <span class="notification-time">20 giây trước</span>
-                    </div>
-                </div>
+                <c:if test="${empty adminNotiList}">
+                    <p style="padding: 10px; text-align: center;">Không có thông báo mới</p>
+                </c:if>
 
-                <div class="notification-item">
-                    <div class="notification-icon" style="background: #5b86e5;">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                    <div class="notification-content">
-                        <p class="notification-text">Đã thêm tài khoản khách hàng vào hệ thống <strong>thành
-                            công!</strong></p>
-                        <span class="notification-time">20 phút trước</span>
-                    </div>
-                </div>
+                <c:forEach var="noti" items="${adminNotiList}">
+                    <div class="notification-item ${noti.isRead == 0 ? 'unread' : ''}"
+                         onclick="window.location.href='${contextPath}/admin/mark-read?id=${noti.id}&target=' + encodeURIComponent('${noti.link}')">
 
-                <div class="notification-item">
-                    <div class="notification-icon" style="background: #5b86e5;">
-                        <i class="fa-solid fa-file-invoice"></i>
+                        <div class="notification-icon">
+                            <c:choose>
+                                <c:when test="${noti.content.toLowerCase().contains('hủy')}">
+                                    <i class="fa-solid fa-circle-xmark" style="color: #4c4747;;"></i>
+                                </c:when>
+                                <c:when test="${noti.content.toLowerCase().contains('mới')}">
+                                    <i class="fa-solid fa-cart-shopping" style="color: #4c4747;"></i>
+                                </c:when>
+                                <c:otherwise>
+                                    <i class="fa-solid fa-bell" style="color: #4c4747;;"></i>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                        <div class="notification-content">
+                            <p class="notification-text">${noti.content}</p>
+                            <span class="notification-time">${noti.createdAt}</span>
+                        </div>
                     </div>
-                    <div class="notification-content">
-                        <p class="notification-text">Đã cập nhật hóa đơn #1988001 vào hệ thống <strong>thành
-                            công!</strong></p>
-                        <span class="notification-time">5 giờ trước</span>
-                    </div>
-                </div>
-
-                <div class="notification-item">
-                    <div class="notification-icon" style="background: #5b86e5;">
-                        <i class="fa-solid fa-box-open"></i>
-                    </div>
-                    <div class="notification-content">
-                        <p class="notification-text">Đã thêm sản phẩm vào hệ thống <strong>thành công!</strong></p>
-                        <span class="notification-time">12 giờ trước</span>
-                    </div>
-                </div>
+                </c:forEach>
             </div>
 
             <div class="notification-footer">
@@ -117,6 +98,7 @@
                  alt="User Profile">
         </div>
     </div>
+
 </header>
 
 <!-- Main Content -->
@@ -124,23 +106,21 @@
     <div class="content-area">
         <h1 class="page-title">Chi tiết khách hàng</h1>
         <div class="breadcrumb">
-            <a href="${contextPath}/admin/dashboard">Trang chủ</a> / <a href="${contextPath}/admin/customers">Danh sách khách hàng</a> / <span>Chi tiết khách hàng</span>
+            <a href="${pageContext.request.contextPath}/admin/adminDashboard">Trang chủ</a> / <a href="${pageContext.request.contextPath}/admin/customers">Danh sách khách hàng</a> / <span>Chi tiết khách hàng</span>
         </div>
 
         <%-- Thông báo thành công --%>
-        <c:if test="${not empty requestScope.updateSuccess}">
-            <div class="alert alert-success">
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                ${requestScope.updateSuccess}
-            </div>
+        <c:if test="${not empty updateSuccess}">
+            <div class="alert-box success-message">
+                <span>${updateSuccess}</span>
+                <span class="close-btn">&times;</span> </div>
         </c:if>
 
         <%-- Thông báo lỗi --%>
-        <c:if test="${not empty requestScope.updateError}">
-            <div class="alert alert-danger">
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                ${requestScope.updateError}
-            </div>
+        <c:if test="${not empty updateError}">
+            <div class="alert-box error-message">
+                <span>${updateError}</span>
+                <span class="close-btn">&times;</span> </div>
         </c:if>
 
         <c:if test="${not empty customer}">
@@ -168,7 +148,7 @@
                         </div>
                         <div class="info-row">
                             <span>Ngày sinh:</span>
-                            <p id="dob"><fmt:formatDate value="${customer.birthday}" pattern="dd/MM/yyyy" /></p>
+                            <p id="dob">${customer.birthday}</p>
                             <span>Địa chỉ:</span>
                             <p id="address">${customer.address}</p>
                         </div>
@@ -176,7 +156,7 @@
                 </div>
 
                 <!-- Khung chỉnh sửa (ẩn lúc đầu) -->
-                <form action="${contextPath}/admin/customer-detail" method="post" class="info-card hidden" id="infoForm">
+                <form action="${pageContext.request.contextPath}/admin/customer-detail" method="post" class="info-card hidden" id="infoForm">
                     <input type="hidden" name="id" value="${customer.id}">
                     <div class="info-header">
                         <h2>Cập nhật thông tin</h2>
@@ -201,14 +181,14 @@
                         </div>
                         <div class="info-row">
                             <span>Ngày sinh:</span>
-                            <input type="date" id="inputDob" name="birthday" value="<fmt:formatDate value='${customer.birthday}' pattern='yyyy-MM-dd' />">
+                            <input type="date" id="inputDob" name="birthday" value="${customer.birthday}">
                             <span>Địa chỉ:</span>
                             <input type="text" id="inputAddress" name="address" value="${customer.address}">
                         </div>
                     </div>
 
                     <div class="info-actions">
-                        <a href="#confirm-save-modal" class="save-btn">Lưu</a>
+                        <button type="submit" id="saveBtn" class="save-btn">Lưu</button>
                         <button type="button" id="cancelBtn" class="cancel-btn">Hủy</button>
                     </div>
                 </form>
@@ -239,8 +219,8 @@
                         <c:forEach var="order" items="${orderList}">
                             <tr>
                                 <td>
-                                    <a href="${contextPath}/admin/orders?action=view&id=${order.id}">
-                                        #${order.orderCode}
+                                    <a href="${pageContext.request.contextPath}/admin/orders?action=view&id=${order.id}">
+                                        ${order.orderCode}
                                     </a>
                                 </td>
 
@@ -272,21 +252,24 @@
                 </div>
                 <c:if test="${totalPages > 1}">
                     <div class="pagination-container">
+                            <%-- Nút Previous --%>
                         <c:if test="${currentPage > 1}">
-                            <a href="${contextPath}/admin/customer-detail?id=${customer.id}&page=${currentPage - 1}" class="pagination-btn">
+                            <a href="${pageContext.request.contextPath}/admin/customer-detail?id=${customer.id}&page=${currentPage - 1}" class="pagination-btn">
                                 <i class="fa-solid fa-chevron-left"></i>
                             </a>
                         </c:if>
 
+                            <%-- Vòng lặp số trang --%>
                         <c:forEach var="i" begin="1" end="${totalPages}">
-                            <a href="${contextPath}/admin/customer-detail?id=${customer.id}&page=${i}"
+                            <a href="${pageContext.request.contextPath}/admin/customer-detail?id=${customer.id}&page=${i}"
                                class="page-number ${i == currentPage ? 'active' : ''}">
                                     ${i}
                             </a>
                         </c:forEach>
 
+                            <%-- Nút Next --%>
                         <c:if test="${currentPage < totalPages}">
-                            <a href="${contextPath}/admin/customer-detail?id=${customer.id}&page=${currentPage + 1}" class="pagination-btn">
+                            <a href="${pageContext.request.contextPath}/admin/customer-detail?id=${customer.id}&page=${currentPage + 1}" class="pagination-btn">
                                 <i class="fa-solid fa-chevron-right"></i>
                             </a>
                         </c:if>
@@ -297,49 +280,70 @@
         <c:if test="${empty customer}">
             <p>Không tìm thấy khách hàng.</p>
         </c:if>
+
+
     </div>
 </main>
 
-<!-- MODALS -->
-<div id="confirm-save-modal" class="modal-overlay">
-    <div class="modal-content">
-        <h3>Xác nhận lưu</h3>
-        <p>Bạn có chắc chắn muốn lưu các thay đổi này không?</p>
-        <div class="modal-buttons">
-            <a href="#" class="modal-btn modal-cancel">Hủy</a>
-            <button type="submit" form="infoForm" class="modal-btn modal-confirm">Lưu</button>
-        </div>
-    </div>
-</div>
 
+<script src="${pageContext.request.contextPath}/admin/adminjs/adminHoaDon.js"></script>
+<%--<script src="${pageContext.request.contextPath}/admin/adminjs/adminNotification.js"></script>--%>
+<script src="${pageContext.request.contextPath}/admin/adminjs/adminUpdateCustomer.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(function(alert) {
-            const closeBtn = alert.querySelector('.close-btn');
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Lấy tất cả các thông báo (cả success và error)
+        var alerts = document.querySelectorAll(".alert-box");
 
-            const autoClose = setTimeout(function() {
-                closeAlert(alert);
+        alerts.forEach(function(alertBox) {
+            // --- LOGIC 1: TỰ ĐỘNG TẮT SAU 5 GIÂY ---
+            var autoCloseTimer = setTimeout(function() {
+                closeAlert(alertBox);
             }, 5000);
 
+            // --- LOGIC 2: BẤM NÚT X ĐỂ TẮT NGAY ---
+            var closeBtn = alertBox.querySelector(".close-btn");
             if (closeBtn) {
-                closeBtn.addEventListener('click', function() {
-                    clearTimeout(autoClose);
-                    closeAlert(alert);
+                closeBtn.addEventListener("click", function() {
+                    // Xóa hẹn giờ tự động (để tránh conflict)
+                    clearTimeout(autoCloseTimer);
+                    // Đóng ngay lập tức
+                    closeAlert(alertBox);
                 });
             }
         });
 
-        function closeAlert(alert) {
-            if (alert) {
-                alert.style.opacity = '0';
+        // Hàm dùng chung để làm mờ và xóa element
+        function closeAlert(box) {
+            if (box.style.display !== 'none') {
+                box.style.transition = "opacity 0.5s ease";
+                box.style.opacity = "0"; // Mờ dần
+
+                // Đợi 0.5s (500ms) cho mờ hẳn rồi mới xóa khỏi DOM
                 setTimeout(function() {
-                    if (alert) alert.style.display = 'none';
+                    box.remove();
                 }, 500);
             }
         }
     });
 </script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("notificationBtn");
+        const dropdown = document.getElementById("notificationDropdown");
+
+        btn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            dropdown.classList.toggle("show");
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.remove("show");
+            }
+        });
+    });
+</script>
 </body>
+
 </html>

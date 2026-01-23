@@ -1,6 +1,5 @@
 package com.example.demo1.controller;
 
-import com.example.demo1.dao.FavoriteDao;
 import com.example.demo1.model.*;
 import com.example.demo1.service.*;
 import jakarta.servlet.ServletException;
@@ -8,7 +7,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.util.*;
@@ -16,8 +14,8 @@ import java.util.*;
 @WebServlet(name = "ListProductController", value = "/list-product")
 public class ListProductController extends HttpServlet {
     private static final int PRODUCTS_PER_PAGE = 20;
-    private FavoriteDao favoriteDao = new FavoriteDao();
 
+    // Thay thế hàm handleRequest cũ bằng hàm này
     private void handleRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ProductService ps = new ProductService();
         CategoryService cs = new CategoryService();
@@ -26,12 +24,9 @@ public class ListProductController extends HttpServlet {
         CategoryAttributeService cas = new CategoryAttributeService();
         Product_SpecService pss = new Product_SpecService();
 
-        HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("user");
-
         try {
-
-            String idStr = request.getParameter("categoryId"); // Đổi từ "id" sang "categoryId" để khớp với home.jsp
+            // Lấy category id từ URL
+            String idStr = request.getParameter("id");
             int categoryId;
 
             if (idStr == null || idStr.isEmpty()) {
@@ -47,27 +42,27 @@ public class ListProductController extends HttpServlet {
                 categoryId = Integer.parseInt(idStr);
             }
 
-
+            // Lấy brandId từ URL (nếu có)
             String brandIdStr = request.getParameter("brandId");
             Integer brandId = null;
             if (brandIdStr != null && !brandIdStr.isEmpty()) {
                 brandId = Integer.parseInt(brandIdStr);
             }
 
-
+            // Lấy tham số sắp xếp
             String sortOrder = request.getParameter("sort");
             if (sortOrder == null || sortOrder.isEmpty()) {
-                sortOrder = "popular";
+                sortOrder = "popular"; // Mặc định
             }
 
-
+            // Lấy trang hiện tại
             String pageStr = request.getParameter("page");
             int currentPage = 1;
             if (pageStr != null && !pageStr.isEmpty()) {
                 currentPage = Integer.parseInt(pageStr);
             }
 
-
+            // Xử lý các tham số bộ lọc spec
             Map<Integer, List<String>> specFilters = new HashMap<>();
             Enumeration<String> parameterNames = request.getParameterNames();
             while (parameterNames.hasMoreElements()) {
@@ -80,36 +75,31 @@ public class ListProductController extends HttpServlet {
                             specFilters.put(attributeId, Arrays.asList(values));
                         }
                     } catch (NumberFormatException e) {
-
+                        // Bỏ qua nếu tên param không hợp lệ
                     }
                 }
             }
 
-
+            // Lấy sản phẩm cho trang hiện tại
             ProductPage productPage = ps.filterAndSortProducts(categoryId, "active", null, brandId, specFilters, sortOrder, currentPage, PRODUCTS_PER_PAGE);
             List<Product> productList = productPage.getProducts();
             int totalProducts = productPage.getTotalProducts();
             int totalPages = (int) Math.ceil((double) totalProducts / PRODUCTS_PER_PAGE);
 
 
-            if (user != null) {
-                for (Product p : productList) {
-                    p.setFavorite(favoriteDao.isFavorite(user.getId(), p.getId()));
-                }
-            }
-
+            // Lấy thông tin của category hiện tại
             Category category = cs.getCategoryById(categoryId);
 
-
+            // Lấy danh sách banner
             List<Banner> bannersForCategory = bs.getBannersByPosition(category.getName());
             List<Banner> leftBanners = bannersForCategory;
             List<Banner> rightBanners = new ArrayList<>(bannersForCategory);
             Collections.reverse(rightBanners);
 
-
+            // Lấy danh sách các thương hiệu
             List<Brand> brandList = brandService.getBrandsByCategoryId(categoryId);
 
-
+            // Lấy dữ liệu cho bộ lọc động
             Map<Attribute, List<String>> filterableAttributes = new LinkedHashMap<>();
             List<Attribute> attributes = cas.getFilterableAttributesByCategoryId(categoryId);
             for (Attribute attr : attributes) {
@@ -119,7 +109,7 @@ public class ListProductController extends HttpServlet {
                 }
             }
 
-
+            // Đặt các thuộc tính cho request
             request.setAttribute("productList", productList);
             request.setAttribute("category", category);
             request.setAttribute("leftBanners", leftBanners);
@@ -129,8 +119,8 @@ public class ListProductController extends HttpServlet {
             request.setAttribute("filterableAttributes", filterableAttributes);
             request.setAttribute("selectedSpecs", specFilters);
             request.setAttribute("selectedSortOrder", sortOrder);
-            
 
+            // Thuộc tính phân trang
             request.setAttribute("currentPage", currentPage);
             request.setAttribute("totalPages", totalPages);
             request.setAttribute("totalProducts", totalProducts);
@@ -142,7 +132,6 @@ public class ListProductController extends HttpServlet {
             response.sendRedirect("home.jsp");
         }
     }
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         handleRequest(request, response);

@@ -1,6 +1,10 @@
 package com.example.demo1.controller;
 
+import com.example.demo1.dao.NotificationDao;
+import com.example.demo1.dao.ProductDao;
 import com.example.demo1.dao.ReviewDao;
+import com.example.demo1.model.Notification;
+import com.example.demo1.model.Product;
 import com.example.demo1.model.User;
 
 import jakarta.servlet.ServletException;
@@ -18,14 +22,16 @@ public class SubmitReviewServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 
-        HttpSession session = request.getSession(false);
+        HttpSession session = request.getSession(false); // Lấy session hiện có, không tạo mới
         User user = null;
         if (session != null) {
-            user = (User) session.getAttribute("user");
+            user = (User) session.getAttribute("user"); // Sửa khóa từ "user" thành "auth"
         }
 
+        // Kiểm tra xem người dùng đã đăng nhập chưa
         if (user == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            // Nếu chưa, chuyển hướng đến trang đăng nhập
+            response.sendRedirect("login.jsp");
             return;
         }
 
@@ -38,11 +44,30 @@ public class SubmitReviewServlet extends HttpServlet {
             ReviewDao reviewDao = new ReviewDao();
             reviewDao.addReview(productId, userId, rating, comment);
 
+            try {
+                NotificationDao notiDao = new NotificationDao();
+
+                ProductDao productDao = new ProductDao();
+                Product product = productDao.getById(productId);
+                String productName = (product != null) ? product.getName() : "Sản phẩm " + productId;
+
+                // Nội dung thông báo
+                String adminContent = "Đánh giá mới " + rating + "* cho: " + productName;
+                String adminLink = "admin/reviews"; // Link đến trang quản lý đánh giá
+
+                // Tạo thông báo: userId = null, targetRole = 1 (Admin)
+                Notification adminNoti = new Notification(null, adminContent, adminLink, 1);
+                notiDao.insert(adminNoti);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             response.sendRedirect("product-detail?id=" + productId);
 
         } catch (NumberFormatException e) {
             e.printStackTrace();
-            response.sendRedirect("home.jsp");
+            response.sendRedirect("home.jsp"); // Hoặc trang lỗi
         }
     }
 }

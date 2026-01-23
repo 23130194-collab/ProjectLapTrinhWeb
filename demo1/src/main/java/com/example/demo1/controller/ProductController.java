@@ -1,10 +1,9 @@
 package com.example.demo1.controller;
 
-import com.example.demo1.dao.FavoriteDao;
+import com.example.demo1.model.Category;
 import com.example.demo1.model.Product;
 import com.example.demo1.model.Review;
 import com.example.demo1.model.ReviewSummary;
-import com.example.demo1.model.User;
 import com.example.demo1.service.ProductService;
 import com.example.demo1.service.ReviewService;
 import jakarta.servlet.ServletException;
@@ -12,7 +11,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -21,7 +19,6 @@ import java.util.Map;
 
 @WebServlet(name = "ProductController", value = "/product-detail")
 public class ProductController extends HttpServlet {
-    private FavoriteDao favoriteDao = new FavoriteDao();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -39,31 +36,23 @@ public class ProductController extends HttpServlet {
             Product p = ps.getPublicProduct(id);
 
             if (p == null) {
-                response.sendRedirect("error.jsp");
+                response.sendRedirect("error.jsp"); // Hoặc một trang 404 tùy chỉnh
                 return;
             }
 
-            HttpSession session = request.getSession();
-            User user = (User) session.getAttribute("user");
-            if (user != null) {
-                p.setFavorite(favoriteDao.isFavorite(user.getId(), p.getId()));
-            }
+            Category cat = ps.getCategory(p.getCategoryId());
+            request.setAttribute("category", cat);
 
-
+            // Lấy danh sách sản phẩm liên quan
             List<Product> relatedProducts = ps.getRelatedProducts(p);
-            if (user != null) {
-                for (Product rp : relatedProducts) {
-                    rp.setFavorite(favoriteDao.isFavorite(user.getId(), rp.getId()));
-                }
-            }
             
-
+            // Lấy tóm tắt review một cách an toàn
             Map<Integer, Integer> rawData = rs.getReviewSummary(id);
             ReviewSummary summary = (rawData != null) ? new ReviewSummary(rawData) : new ReviewSummary();
 
             List<Review> initialReviews = rs.getReviewsForUser(id, 0, 5, 0);
             if (initialReviews == null) {
-                initialReviews = Collections.emptyList();
+                initialReviews = Collections.emptyList(); // Đảm bảo không bao giờ null
             }
 
             request.setAttribute("p", p);
@@ -77,16 +66,17 @@ public class ProductController extends HttpServlet {
             request.getRequestDispatcher("sanPham.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
-            response.sendRedirect("home.jsp");
+            response.sendRedirect("home.jsp"); // ID không phải là số
         } catch (Exception e) {
-
-            e.printStackTrace();
+            // Bắt tất cả các lỗi khác để tránh màn hình trắng
+            e.printStackTrace(); // In lỗi ra console log của server
             request.setAttribute("errorMessage", "Đã có lỗi xảy ra khi tải trang sản phẩm.");
+//            request.getRequestDispatcher("/error.jsp").forward(request, response); // Chuyển đến trang lỗi chung
         }
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+        // Để trống
     }
 }

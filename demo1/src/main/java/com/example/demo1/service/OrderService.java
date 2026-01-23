@@ -59,6 +59,7 @@ public class OrderService {
         orderDao.updateOrderTotals(orderId, subprice, discountAmount, totalAmount);
     }
 
+
     public boolean isOrderCodeExists(String orderCode) {
         return orderDao.isOrderCodeExists(orderCode);
     }

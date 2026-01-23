@@ -144,16 +144,15 @@ public class UserDao {
     }
 
     public int countUsersByStatus(String status) {
-        String sql = "SELECT COUNT(*) FROM users";
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM users WHERE role = 0");
         boolean hasFilter = status != null && !status.equals("all");
 
         if (hasFilter) {
-            sql += " WHERE status = :status";
+            sql.append(" AND status = :status");
         }
 
-        String finalSql = sql;
         return jdbi.withHandle(h -> {
-            var q = h.createQuery(finalSql);
+            var q = h.createQuery(sql.toString());
             if (hasFilter) q.bind("status", status);
             return q.mapTo(Integer.class).one();
         });
@@ -165,6 +164,8 @@ public class UserDao {
         sql.append("SELECT u.*, COUNT(o.id) as orderCount ");
         sql.append("FROM users u ");
         sql.append("LEFT JOIN orders o ON u.id = o.user_id ");
+
+        sql.append("WHERE u.role = 0 ");
 
         boolean hasFilter = status != null && !status.equals("all");
         if (hasFilter) {
@@ -185,5 +186,14 @@ public class UserDao {
 
             return query.mapToBean(User.class).list();
         });
+    }
+
+    // Đếm tổng số khách hàng (role = 0)
+    public int getTotalCustomersCount() {
+        return jdbi.withHandle(handle ->
+                handle.createQuery("SELECT COUNT(*) FROM users WHERE role = 0")
+                        .mapTo(Integer.class)
+                        .one()
+        );
     }
 }

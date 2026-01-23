@@ -2,7 +2,7 @@ package com.example.demo1.model;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.List; // Import List
+import java.util.List;
 
 public class Order {
     private int id;
@@ -19,6 +19,7 @@ public class Order {
     private LocalDateTime updatedAt;
     private List<OrderItem> items;
     private RecipientInfo recipientInfo;
+
 
     public Order() {
     }
@@ -120,19 +121,19 @@ public class Order {
         this.updatedAt = updatedAt;
     }
 
-    public List<OrderItem> getItems() {
-        return items;
-    }
-
-    public void setItems(List<OrderItem> items) {
-        this.items = items;
-    }
-
     public RecipientInfo getRecipientInfo() {
         return recipientInfo;
     }
 
     public void setRecipientInfo(RecipientInfo recipientInfo) {
         this.recipientInfo = recipientInfo;
+    }
+
+    public List<OrderItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<OrderItem> items) {
+        this.items = items;
     }
 }

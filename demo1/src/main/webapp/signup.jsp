@@ -1,9 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="java.util.Map" %>
-<%@ page import="com.example.demo1.model.CartItem" %>
-
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -72,10 +68,9 @@
         </div>
 
         <div class="login">
-            <p>Đã có tài khoản? <a href="${pageContext.request.contextPath}/login">Đăng nhập</a></p>
+            <p>Đã có tài khoản? <a href="login.jsp">Đăng nhập</a></p>
         </div>
     </div>
 </div>
-
 </body>
 </html>

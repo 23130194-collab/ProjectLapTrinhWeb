@@ -269,6 +269,7 @@ input[type="file"].image-input-box {
     border: 1px solid transparent;
     border-radius: 8px;
     font-size: 14px;
+    position: relative; /* Thêm thuộc tính này */
 }
 .alert-success {
     color: #0f5132;
@@ -348,4 +349,19 @@ input[type="file"].image-input-box {
 .modal-confirm {
     background-color: #ef4444;
     color: white;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    color: inherit;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.notification-item.unread {
+    background-color: #f0f7ff;
+    font-weight: bold;
 }

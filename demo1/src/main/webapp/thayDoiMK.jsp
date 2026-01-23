@@ -43,7 +43,7 @@
                     <button type="submit" class="login-btn">Lưu thay đổi</button>
                 </form>
                 <div style="text-align: center; margin-top: 20px;">
-                    <a href="${pageContext.request.contextPath}/account">Quay lại</a>
+                    <a href="${pageContext.request.contextPath}/thongTinTaiKhoan.jsp">Quay lại</a>
                 </div>
             </div>
         </div>

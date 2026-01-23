@@ -22,7 +22,7 @@ public class UpdateProfileServlet extends HttpServlet {
         User user = (User) session.getAttribute("user");
 
         if (user == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            response.sendRedirect(request.getContextPath() + "/login.jsp");
             return;
         }
 
@@ -31,7 +31,7 @@ public class UpdateProfileServlet extends HttpServlet {
             String phone = request.getParameter("phone");
             String address = request.getParameter("address");
             String gender = request.getParameter("gender");
-            String birthdayStr = request.getParameter("birthday");
+            String birthdayStr = request.getParameter("birthday"); // Lấy chuỗi gốc từ form
 
 
             Date birthdayDate = null;
@@ -62,5 +62,6 @@ public class UpdateProfileServlet extends HttpServlet {
             session.setAttribute("updateProfileError", "Đã xảy ra lỗi. Vui lòng thử lại.");
         }
 
-        response.sendRedirect(request.getContextPath() + "/account");    }
+        response.sendRedirect(request.getContextPath() + "/thongTinTaiKhoan.jsp");
+    }
 }

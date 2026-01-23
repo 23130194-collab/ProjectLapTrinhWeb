@@ -40,7 +40,7 @@
             </div>
 
             <div class="remember">
-                <a href="${pageContext.request.contextPath}/forgot">Quên mật khẩu?</a>
+                <a href="forgot.jsp">Quên mật khẩu?</a>
             </div>
 
             <button type="submit" class="login-btn">Đăng nhập</button>
@@ -62,7 +62,7 @@
         </div>
 
         <div class="signup">
-            <p>Chưa có tài khoản? <a href="${pageContext.request.contextPath}/signup">Đăng ký ngay</a></p>
+            <p>Chưa có tài khoản? <a href="signup.jsp">Đăng ký ngay</a></p>
         </div>
     </div>
 </div>

@@ -24,7 +24,7 @@ public class LoginController extends HttpServlet {
         String password = request.getParameter("password");
 
         Map<String, String> errors = new HashMap<>();
-        
+
 
         request.setAttribute("email_value", email);
 
@@ -52,14 +52,14 @@ public class LoginController extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/verify.jsp");
                 return;
             }
-            
+
             HttpSession session = request.getSession();
             session.setAttribute("user", user);
 
-
-            if (user.getRole() == 1) {
+            // Phân quyền người dùng
+            if (user.getRole() == 1) { // Admin
                 response.sendRedirect(request.getContextPath() + "/admin/brands");
-            } else {
+            } else { // User
                 response.sendRedirect(request.getContextPath() + "/home");
             }
         } else {

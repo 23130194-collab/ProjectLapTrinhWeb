@@ -47,25 +47,43 @@
     <div class="header-actions">
         <button class="notification-btn" id="notificationBtn">
             <i class="fa-solid fa-bell"></i>
-            <span class="notification-badge">3</span>
+            <c:if test="${adminUnreadCount > 0}">
+                <span class="notification-badge">${adminUnreadCount}</span>
+            </c:if>
         </button>
-
-        <!-- Thông báo -->
         <div class="notification-dropdown" id="notificationDropdown">
             <div class="notification-header">
                 <h3>Thông báo</h3>
             </div>
 
             <div class="notification-list">
-                <div class="notification-item">
-                    <div class="notification-icon" style="background: #5b86e5;">
-                        <i class="fa-solid fa-box-open"></i>
+                <c:if test="${empty adminNotiList}">
+                    <p style="padding: 10px; text-align: center;">Không có thông báo mới</p>
+                </c:if>
+
+                <c:forEach var="noti" items="${adminNotiList}">
+                    <div class="notification-item ${noti.isRead == 0 ? 'unread' : ''}"
+                         onclick="window.location.href='${contextPath}/admin/mark-read?id=${noti.id}&target=' + encodeURIComponent('${noti.link}')">
+
+                        <div class="notification-icon">
+                            <c:choose>
+                                <c:when test="${noti.content.toLowerCase().contains('hủy')}">
+                                    <i class="fa-solid fa-circle-xmark" style="color: #4c4747;;"></i>
+                                </c:when>
+                                <c:when test="${noti.content.toLowerCase().contains('mới')}">
+                                    <i class="fa-solid fa-cart-shopping" style="color: #4c4747;"></i>
+                                </c:when>
+                                <c:otherwise>
+                                    <i class="fa-solid fa-bell" style="color: #4c4747;;"></i>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                        <div class="notification-content">
+                            <p class="notification-text">${noti.content}</p>
+                            <span class="notification-time">${noti.createdAt}</span>
+                        </div>
                     </div>
-                    <div class="notification-content">
-                        <p class="notification-text">Đã thêm sản phẩm vào hệ thống <strong>thành công!</strong></p>
-                        <span class="notification-time">20 giây trước</span>
-                    </div>
-                </div>
+                </c:forEach>
             </div>
 
             <div class="notification-footer">
@@ -81,41 +99,53 @@
 
 <main class="main-content">
     <div class="content-area">
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">Thuộc tính</h1>
-                <div class="breadcrumb">
-                    <a href="${contextPath}/admin/dashboard" class="breadcrumb-link">Trang chủ</a>
-                    <span>/</span>
-                    <span class="breadcrumb-current">Thuộc tính</span>
-                </div>
-            </div>
+        <div class="page-title">Thuộc tính</div>
+        <div class="breadcrumb">
+            <a href="${contextPath}/admin/dashboard" class="breadcrumb-link">Trang chủ</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Thuộc tính</span>
         </div>
 
-        <c:if test="${not empty sessionScope.successMessage}">
+        <c:if test="${not empty param.success}">
             <div class="alert alert-success">
                 <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                ${sessionScope.successMessage}
+                <c:choose>
+                    <c:when test="${param.success == 'add'}">Thêm thuộc tính mới thành công!</c:when>
+                    <c:when test="${param.success == 'update'}">Cập nhật thuộc tính thành công!</c:when>
+                    <c:when test="${param.success == 'delete'}">Xóa thuộc tính thành công!</c:when>
+                </c:choose>
             </div>
-            <c:remove var="successMessage" scope="session"/>
         </c:if>
-        <c:if test="${not empty sessionScope.errorMessage}">
+        <c:if test="${not empty param.error}">
             <div class="alert alert-danger">
                 <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                ${sessionScope.errorMessage}
+                <c:choose>
+                    <c:when test="${param.error == 'name_required'}">Lỗi: Tên thuộc tính không được để trống.</c:when>
+                    <c:when test="${param.error == 'invalid_id'}">Lỗi: ID không hợp lệ.</c:when>
+                    <c:otherwise>Đã có lỗi xảy ra. Vui lòng thử lại.</c:otherwise>
+                </c:choose>
             </div>
-            <c:remove var="errorMessage" scope="session"/>
         </c:if>
 
+        <c:if test="${not empty errorMessage}">
+            <div class="alert alert-danger">
+                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+                    ${errorMessage}
+            </div>
+        </c:if>
+
+
+        <!-- FORM SECTION -->
         <div class="form-section">
-            <form method="post" action="${contextPath}/admin/attributes" id="attributeForm">
+            <form method="post" action="${contextPath}/admin/attributes">
                 <input type="hidden" name="action" value="${not empty attributeToEdit ? 'update' : 'add'}">
                 <input type="hidden" name="id" value="${attributeToEdit.id}">
 
                 <div class="form-row">
                     <div class="form-item">
                         <label class="form-label">Tên thuộc tính</label>
-                        <input type="text" name="name" placeholder="Nhập tên thuộc tính" value="${attributeToEdit.name}" required>
+                        <input type="text" name="name" placeholder="Nhập tên thuộc tính"
+                               value="${not empty oldName ? oldName : attributeToEdit.name}" required>
                     </div>
 
                     <div class="form-item">
@@ -123,7 +153,10 @@
                         <select name="category_id" required>
                             <option value="">Chọn danh mục</option>
                             <c:forEach var="category" items="${categories}">
-                                <option value="${category.id}" ${category.id == attributeToEdit.categoryId ? 'selected' : ''}>${category.name}</option>
+                                <option value="${category.id}"
+                                    ${(not empty oldCategoryId && category.id == oldCategoryId) || (category.id == attributeToEdit.categoryId) ? 'selected' : ''}>
+                                        ${category.name}
+                                </option>
                             </c:forEach>
                         </select>
                     </div>
@@ -132,12 +165,14 @@
                 <div class="form-row second-row">
                     <div class="form-item">
                         <label class="form-label">Thứ tự hiển thị</label>
-                        <input type="number" name="display_order" placeholder="Nhập thứ tự" value="${attributeToEdit.displayOrder}" min="1" required>
+                        <input type="number" name="display_order" placeholder="Nhập thứ tự" value="${not empty oldDisplayOrder ? oldDisplayOrder : (not empty attributeToEdit ? attributeToEdit.displayOrder : '')}"
+                               min="1" required>
                     </div>
 
                     <div class="form-item">
                         <label class="form-label">Bộ lọc</label>
-                        <input type="checkbox" class="checkbox-round" name="is_filterable" value="1" ${attributeToEdit.isFilterable == 1 ? 'checked' : ''}>
+                        <input type="checkbox" class="checkbox-round" name="is_filterable" value="1"
+                        ${(not empty oldIsFilterable && oldIsFilterable == 1) || (attributeToEdit.isFilterable == 1) ? 'checked' : ''}>
                     </div>
 
                     <div class="form-item">
@@ -148,14 +183,19 @@
                         </select>
                     </div>
 
+
                     <div class="form-item buttons-row" style="display: flex; flex-direction: row; gap: 8px; margin-left: auto;">
                         <c:choose>
                             <c:when test="${not empty attributeToEdit}">
-                                <a href="#confirm-save-modal" class="btn-update"><i class="fa-solid fa-save"></i> Cập nhật</a>
+                                <button type="submit" class="btn-update">
+                                    <i class="fa-solid fa-save"></i> Cập nhật
+                                </button>
                                 <a href="${contextPath}/admin/attributes" class="btn-cancel">Hủy</a>
                             </c:when>
                             <c:otherwise>
-                                <a href="#confirm-save-modal" class="btn-add"><i class="fa-solid fa-plus"></i> Thêm thuộc tính</a>
+                                <button type="submit" class="btn-add">
+                                    <i class="fa-solid fa-plus"></i> Thêm thuộc tính
+                                </button>
                             </c:otherwise>
                         </c:choose>
                     </div>
@@ -163,18 +203,28 @@
             </form>
         </div>
 
+        <!-- SEARCH & FILTER - NEW -->
         <form action="${contextPath}/admin/attributes" method="get">
             <div class="form-search-row" style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-                <select name="filterCategoryId" onchange="this.form.submit()" style="height: 45px; padding: 0 15px; border: 1px solid #e2e8f0; border-radius: 10px; outline: none; cursor: pointer; color: #4b5563; min-width: 200px; background-color: white;">
+
+                <select name="filterCategoryId" onchange="this.form.submit()"
+                        style="height: 45px; padding: 0 15px; border: 1px solid #e2e8f0; border-radius: 10px; outline: none; cursor: pointer; color: #4b5563; min-width: 200px; background-color: white;">
                     <option value="0">-- Tất cả danh mục --</option>
                     <c:forEach var="cat" items="${categories}">
-                        <option value="${cat.id}" ${cat.id == filterCategoryId ? 'selected' : ''}>${cat.name}</option>
+                        <option value="${cat.id}" ${cat.id == filterCategoryId ? 'selected' : ''}>
+                                ${cat.name}
+                        </option>
                     </c:forEach>
                 </select>
+
                 <div class="search-wrapper" style="flex: 1; margin-bottom: 0;">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="text" name="keyword" class="search-input" placeholder="Tìm kiếm thuộc tính..." value="${keyword}" style="width: 100%; height: 45px;">
+                    <input type="text" name="keyword" class="search-input"
+                           placeholder="Tìm kiếm thuộc tính..."
+                           value="${keyword}"
+                           style="width: 100%; height: 45px;">
                 </div>
+
                 <button type="submit" style="display:none;"></button>
             </div>
         </form>
@@ -199,9 +249,12 @@
                         <td><c:out value="${attr.name}"/></td>
                         <td>
                             <c:forEach var="cat" items="${categories}">
-                                <c:if test="${cat.id == attr.categoryId}">${cat.name}</c:if>
+                                <c:if test="${cat.id == attr.categoryId}">
+                                    ${cat.name}
+                                </c:if>
                             </c:forEach>
                         </td>
+
                         <td>${attr.displayOrder}</td>
                         <td>
                             <span class="badge ${attr.status == 'active' ? 'active-status' : 'inactive-status'}">
@@ -210,7 +263,11 @@
                         </td>
                         <td class="actions">
                             <a href="${contextPath}/admin/attributes?action=edit&id=${attr.id}" class="btn-edit"><i class="fa-solid fa-pen"></i></a>
-                            <a href="#confirm-delete-modal-${attr.id}" class="btn-delete"><i class="fa-solid fa-trash"></i></a>
+                            <form action="${contextPath}/admin/attributes" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thuộc tính này không?');">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="id" value="${attr.id}">
+                                <button type="submit" class="btn-delete"><i class="fa-solid fa-trash"></i></button>
+                            </form>
                         </td>
                     </tr>
                 </c:forEach>
@@ -218,72 +275,101 @@
             </table>
         </div>
 
+
+        <!-- Phân trang -->
         <c:if test="${totalPages > 1}">
             <div class="pagination-container">
+
                 <c:if test="${currentPage > 1}">
-                    <a href="${contextPath}/admin/attributes?page=${currentPage - 1}&keyword=${keyword}&filterCategoryId=${filterCategoryId}" class="pagination-btn"><i class="fa-solid fa-chevron-left"></i></a>
+                    <a href="${contextPath}/admin/attributes?page=${currentPage - 1}&keyword=${keyword}&filterCategoryId=${filterCategoryId}"
+                       class="pagination-btn">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
                 </c:if>
+
                 <c:forEach var="i" begin="1" end="${totalPages}">
-                    <a href="${contextPath}/admin/attributes?page=${i}&keyword=${keyword}&filterCategoryId=${filterCategoryId}" class="page-number ${currentPage == i ? 'active' : ''}">${i}</a>
+                    <a href="${contextPath}/admin/attributes?page=${i}&keyword=${keyword}&filterCategoryId=${filterCategoryId}"
+                       class="page-number ${currentPage == i ? 'active' : ''}">
+                            ${i}
+                    </a>
                 </c:forEach>
+
                 <c:if test="${currentPage < totalPages}">
-                    <a href="${contextPath}/admin/attributes?page=${currentPage + 1}&keyword=${keyword}&filterCategoryId=${filterCategoryId}" class="pagination-btn"><i class="fa-solid fa-chevron-right"></i></a>
+                    <a href="${contextPath}/admin/attributes?page=${currentPage + 1}&keyword=${keyword}&filterCategoryId=${filterCategoryId}"
+                       class="pagination-btn">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
                 </c:if>
+
             </div>
         </c:if>
+
     </div>
 </main>
-
-<c:forEach var="attr" items="${attributes}">
-    <div id="confirm-delete-modal-${attr.id}" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Xác nhận xóa</h3>
-            <p>Bạn có chắc chắn muốn xóa thuộc tính "${attr.name}" không?</p>
-            <div class="modal-buttons">
-                <a href="#" class="modal-btn modal-cancel">Hủy</a>
-                <a href="${contextPath}/admin/attributes?action=delete&id=${attr.id}" class="modal-btn modal-confirm">Xóa</a>
-            </div>
-        </div>
-    </div>
-</c:forEach>
-
-<div id="confirm-save-modal" class="modal-overlay">
-    <div class="modal-content">
-        <h3>Xác nhận lưu</h3>
-        <p>Bạn có chắc chắn muốn lưu các thay đổi này không?</p>
-        <div class="modal-buttons">
-            <a href="#" class="modal-btn modal-cancel">Hủy</a>
-            <button type="submit" form="attributeForm" class="modal-btn modal-confirm">Lưu</button>
-        </div>
-    </div>
-</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const alerts = document.querySelectorAll('.alert');
         alerts.forEach(function(alert) {
-            const closeBtn = alert.querySelector('.close-btn');
-
-            const autoClose = setTimeout(function() {
-                closeAlert(alert);
-            }, 5000);
-
-            if (closeBtn) {
-                closeBtn.addEventListener('click', function() {
-                    clearTimeout(autoClose);
-                    closeAlert(alert);
-                });
-            }
-        });
-
-        function closeAlert(alert) {
-            if (alert) {
+            setTimeout(function() {
                 alert.style.opacity = '0';
                 setTimeout(function() {
-                    if (alert) alert.style.display = 'none';
+                    alert.style.display = 'none';
                 }, 500);
+            }, 5000);
+        });
+    });
+</script>
+
+<input type="hidden" name="force" id="forceInput" value="false">
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Kiểm tra biến flag từ server
+        var needConfirm = ${confirmReplaceOrder != null ? confirmReplaceOrder : 'false'};
+        var message = "${conflictMessage}";
+
+        if (needConfirm) {
+            // Hiện hộp thoại Confirm
+            if (confirm(message)) {
+                // NGƯỜI DÙNG BẤM OK (THAY THẾ)
+
+                // 1. Tìm cái form đang nhập
+                var form = document.querySelector('form[action$="/admin/attributes"]');
+
+                // 2. Set cờ force = true
+                var forceInput = form.querySelector('input[name="force"]');
+                if (!forceInput) { // Tạo nếu chưa có
+                    forceInput = document.createElement("input");
+                    forceInput.type = "hidden";
+                    forceInput.name = "force";
+                    form.appendChild(forceInput);
+                }
+                forceInput.value = "true";
+
+
+                form.submit();
+            } else {
             }
         }
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("notificationBtn");
+        const dropdown = document.getElementById("notificationDropdown");
+
+        btn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            dropdown.classList.toggle("show");
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.remove("show");
+            }
+        });
     });
 </script>
 

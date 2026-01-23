@@ -12,7 +12,6 @@
     <link rel="stylesheet" href="${contextPath}/admin/admincss/adminNotification.css">
     <link rel="stylesheet" href="${contextPath}/admin/admincss/headerAndSidebar.css">
     <link rel="stylesheet" href="${contextPath}/admin/admincss/adminBanners.css">
-    <link rel="stylesheet" href="${contextPath}/admin/admincss/adminBrands.css">
 </head>
 <body>
 
@@ -44,56 +43,43 @@
     <div class="header-actions">
         <button class="notification-btn" id="notificationBtn">
             <i class="fa-solid fa-bell"></i>
-            <span class="notification-badge">3</span>
+            <c:if test="${adminUnreadCount > 0}">
+                <span class="notification-badge">${adminUnreadCount}</span>
+            </c:if>
         </button>
-
         <div class="notification-dropdown" id="notificationDropdown">
             <div class="notification-header">
                 <h3>Thông báo</h3>
             </div>
 
             <div class="notification-list">
-                <div class="notification-item">
-                    <div class="notification-icon" style="background: #5b86e5;">
-                        <i class="fa-solid fa-box-open"></i>
-                    </div>
-                    <div class="notification-content">
-                        <p class="notification-text">Đã thêm sản phẩm vào hệ thống <strong>thành công!</strong></p>
-                        <span class="notification-time">20 giây trước</span>
-                    </div>
-                </div>
+                <c:if test="${empty adminNotiList}">
+                    <p style="padding: 10px; text-align: center;">Không có thông báo mới</p>
+                </c:if>
 
-                <div class="notification-item">
-                    <div class="notification-icon" style="background: #5b86e5;">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                    <div class="notification-content">
-                        <p class="notification-text">Đã thêm tài khoản khách hàng vào hệ thống <strong>thành
-                            công!</strong></p>
-                        <span class="notification-time">20 phút trước</span>
-                    </div>
-                </div>
+                <c:forEach var="noti" items="${adminNotiList}">
+                    <div class="notification-item ${noti.isRead == 0 ? 'unread' : ''}"
+                         onclick="window.location.href='${contextPath}/admin/mark-read?id=${noti.id}&target=' + encodeURIComponent('${noti.link}')">
 
-                <div class="notification-item">
-                    <div class="notification-icon" style="background: #5b86e5;">
-                        <i class="fa-solid fa-file-invoice"></i>
+                        <div class="notification-icon">
+                            <c:choose>
+                                <c:when test="${noti.content.toLowerCase().contains('hủy')}">
+                                    <i class="fa-solid fa-circle-xmark" style="color: #4c4747;;"></i>
+                                </c:when>
+                                <c:when test="${noti.content.toLowerCase().contains('mới')}">
+                                    <i class="fa-solid fa-cart-shopping" style="color: #4c4747;"></i>
+                                </c:when>
+                                <c:otherwise>
+                                    <i class="fa-solid fa-bell" style="color: #4c4747;;"></i>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                        <div class="notification-content">
+                            <p class="notification-text">${noti.content}</p>
+                            <span class="notification-time">${noti.createdAt}</span>
+                        </div>
                     </div>
-                    <div class="notification-content">
-                        <p class="notification-text">Đã cập nhật hóa đơn #1988001 vào hệ thống <strong>thành
-                            công!</strong></p>
-                        <span class="notification-time">5 giờ trước</span>
-                    </div>
-                </div>
-
-                <div class="notification-item">
-                    <div class="notification-icon" style="background: #5b86e5;">
-                        <i class="fa-solid fa-box-open"></i>
-                    </div>
-                    <div class="notification-content">
-                        <p class="notification-text">Đã thêm sản phẩm vào hệ thống <strong>thành công!</strong></p>
-                        <span class="notification-time">12 giờ trước</span>
-                    </div>
-                </div>
+                </c:forEach>
             </div>
 
             <div class="notification-footer">
@@ -120,19 +106,20 @@
             </div>
         </div>
 
-        <c:if test="${not empty sessionScope.successMessage}">
-            <div class="alert alert-success">
+        <c:if test="${not empty sessionScope.message}">
+            <div class="alert alert-success" id="successAlert">
+                <span>${sessionScope.message}</span>
                 <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                ${sessionScope.successMessage}
             </div>
-            <c:remove var="successMessage" scope="session"/>
+            <c:remove var="message" scope="session"/>
         </c:if>
-        <c:if test="${not empty sessionScope.errorMessage}">
-            <div class="alert alert-danger">
+
+        <c:if test="${not empty errorMessage}">
+            <div class="alert alert-danger" style="background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;">
+                <span>${errorMessage}</span>
                 <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                ${sessionScope.errorMessage}
             </div>
-            <c:remove var="errorMessage" scope="session"/>
+            <c:remove var="message" scope="session"/>
         </c:if>
 
         <form id="bannerForm" action="${contextPath}/admin/banners" method="post" enctype="multipart/form-data">
@@ -210,10 +197,10 @@
                                value="${bannerToEdit.image.startsWith('http') ? bannerToEdit.image : ''}">
                     </div>
 
-                    <a href="#confirm-save-modal" class="btn-add-banner">
+                    <button type="submit" class="btn-add-banner">
                         <i class="fa-solid ${not empty bannerToEdit && bannerToEdit.id > 0 ? 'fa-save' : 'fa-plus'}"></i>
                         ${(not empty bannerToEdit && bannerToEdit.id > 0) ? 'Cập Nhật' : 'Thêm Banner mới'}
-                    </a>
+                    </button>
 
                     <c:if test="${not empty bannerToEdit && bannerToEdit.id > 0}">
                         <a href="${contextPath}/admin/banners" class="btn-add-banner" style="background: #334155; text-decoration: none; display: flex; align-items: center; justify-content: center;">
@@ -234,7 +221,7 @@
                     <option value="Trang chủ" ${filterPosition == 'Trang chủ' ? 'selected' : ''}>Trang chủ</option>
 
                     <c:forEach var="cat" items="${categories}">
-                        <option value="${category.id}" ${String.valueOf(cat.id) == filterPosition ? 'selected' : ''}>
+                        <option value="${cat.id}" ${String.valueOf(cat.id) == filterPosition ? 'selected' : ''}>
                                 ${cat.name}
                         </option>
                     </c:forEach>
@@ -286,7 +273,8 @@
                         <td>
                             <div class="action-buttons">
                                 <a href="${contextPath}/admin/banners?action=edit&id=${b.id}" class="action-btn edit"><i class="fa-solid fa-pen"></i></a>
-                                <a href="#confirm-delete-modal-${b.id}" class="action-btn delete"><i class="fa-solid fa-trash"></i></a>
+                                <a href="${contextPath}/admin/banners?action=delete&id=${b.id}" class="action-btn delete"
+                                   onclick="return confirm('Xóa banner này?')"><i class="fa-solid fa-trash"></i></a>
                             </div>
                         </td>
                     </tr>
@@ -323,60 +311,24 @@
         </c:if>
     </div>
 </main>
-
-<c:forEach var="b" items="${banners}">
-    <div id="confirm-delete-modal-${b.id}" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Xác nhận xóa</h3>
-            <p>Bạn có chắc chắn muốn xóa banner "${b.name}" không?</p>
-            <div class="modal-buttons">
-                <a href="#" class="modal-btn modal-cancel">Hủy</a>
-                <a href="${contextPath}/admin/banners?action=delete&id=${b.id}" class="modal-btn modal-confirm">Xóa</a>
-            </div>
-        </div>
-    </div>
-</c:forEach>
-
-<div id="confirm-save-modal" class="modal-overlay">
-    <div class="modal-content">
-        <h3>Xác nhận lưu</h3>
-        <p>Bạn có chắc chắn muốn lưu các thay đổi này không?</p>
-        <div class="modal-buttons">
-            <a href="#" class="modal-btn modal-cancel">Hủy</a>
-            <button type="submit" form="bannerForm" class="modal-btn modal-confirm">Lưu</button>
-        </div>
-    </div>
-</div>
-
+<%--<script src="${contextPath}/admin/adminjs/adminNotification.js"></script>--%>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Logic cho thông báo alert
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(function(alert) {
-            const closeBtn = alert.querySelector('.close-btn');
-
-            const autoClose = setTimeout(function() {
-                closeAlert(alert);
+        var alertBox = document.getElementById("successAlert");
+        if (alertBox) {
+            setTimeout(function() {
+                if (alertBox.style.display !== 'none') {
+                    // Hiệu ứng mờ dần
+                    alertBox.style.transition = "opacity 0.5s ease";
+                    alertBox.style.opacity = "0";
+                    setTimeout(function() {
+                        alertBox.remove();
+                    }, 500);
+                }
             }, 5000);
-
-            if (closeBtn) {
-                closeBtn.addEventListener('click', function() {
-                    clearTimeout(autoClose);
-                    closeAlert(alert);
-                });
-            }
-        });
-
-        function closeAlert(alert) {
-            if (alert) {
-                alert.style.opacity = '0';
-                setTimeout(function() {
-                    if (alert) alert.style.display = 'none';
-                }, 500);
-            }
         }
 
-        // Logic cho confirm display order conflict
+        // Logic for display order conflict confirmation
         const confirmReplace = '<c:out value="${confirmReplaceOrder}" />';
         if (confirmReplace === 'true') {
             const message = '<c:out value="${conflictMessage}" />';
@@ -391,5 +343,22 @@
     });
 </script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("notificationBtn");
+        const dropdown = document.getElementById("notificationDropdown");
+
+        btn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            dropdown.classList.toggle("show");
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.remove("show");
+            }
+        });
+    });
+</script>
 </body>
 </html>

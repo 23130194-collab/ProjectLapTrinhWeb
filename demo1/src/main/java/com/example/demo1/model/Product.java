@@ -20,7 +20,6 @@ public class Product implements Serializable {
     private Timestamp discountStart;
     private Timestamp discountEnd;
     private int soldQuantity;
-    private boolean favorite;
 
     public Product() {
     }
@@ -152,13 +151,5 @@ public class Product implements Serializable {
 
     public void setSoldQuantity(int soldQuantity) {
         this.soldQuantity = soldQuantity;
-    }
-
-    public boolean isFavorite() {
-        return favorite;
-    }
-
-    public void setFavorite(boolean favorite) {
-        this.favorite = favorite;
     }
 }

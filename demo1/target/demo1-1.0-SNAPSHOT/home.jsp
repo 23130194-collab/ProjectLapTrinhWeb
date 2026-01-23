@@ -1,11 +1,14 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <fmt:setLocale value="vi_VN" />
 <%@ page import="com.example.demo1.dao.NotificationDao" %>
 <%@ page import="com.example.demo1.model.Notification" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.example.demo1.model.User" %>
+<%@ page import="com.example.demo1.model.CartItem" %>
+<%@ page import="java.util.Map" %>
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -24,59 +27,82 @@
 </head>
 
 <body>
-    <header class="header">
-        <div class="header-container">
-            <a href="${pageContext.request.contextPath}/home" class="logo">
-                <img src="https://i.postimg.cc/Hn4Jc3yj/logo-2.png" alt="TechNova Logo">
-                <span class="brand-name">TechNova</span>
+<header class="header">
+    <div class="header-container">
+        <a href="${pageContext.request.contextPath}/home" class="logo">
+            <img src="https://i.postimg.cc/Hn4Jc3yj/logo-2.png" alt="TechNova Logo">
+            <span class="brand-name">TechNova</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="${pageContext.request.contextPath}/home" class="active">Trang chủ</a>
+            <a href="${pageContext.request.contextPath}/gioiThieu.jsp">Giới thiệu</a>
+            <a href="#" id="category-toggle">Danh mục</a>
+            <a href="${pageContext.request.contextPath}/contact">Liên hệ</a>
+        </nav>
+
+        <div class="search-box">
+            <form action="search" method="get" id="searchForm" style="display: flex; width: 100%;">
+                <input type="text" name="keyword" id="searchInput"
+                       placeholder="Bạn muốn mua gì hôm nay?" autocomplete="off">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+            <div id="suggestion-box" class="suggestion-box" style="display:none;"></div>
+        </div>
+
+        <div class="header-actions">
+
+            <%
+                int totalQuantity = 0;
+                Map<Integer, CartItem> cart = (Map<Integer, CartItem>) session.getAttribute("cart");
+
+                if (cart != null) {
+                    totalQuantity = cart.size();
+                }
+            %>
+
+            <a href="${pageContext.request.contextPath}/AddCart?action=view" class="icon-btn cart-btn-wrapper" title="Giỏ hàng">
+                <i class="fas fa-shopping-cart"></i>
+
+                <% if (totalQuantity > 0) { %>
+                <span class="cart-badge"><%= totalQuantity %></span>
+                <% } %>
             </a>
 
-            <nav class="nav-links">
-                <a href="${pageContext.request.contextPath}/home" class="active">Trang chủ</a>
-                <a href="${pageContext.request.contextPath}/gioiThieu.jsp">Giới thiệu</a>
-                <a href="#" id="category-toggle">Danh mục</a>
-                <a href="${pageContext.request.contextPath}/contact">Liên hệ</a>
-            </nav>
-
-            <div class="search-box">
-                <input type="text" placeholder="Bạn muốn mua gì hôm nay?">
-                <button><i class="fas fa-search"></i></button>
-            </div>
-
-            <div class="header-actions">
-                <a href="${pageContext.request.contextPath}/AddCart?action=view" class="icon-btn" title="Giỏ hàng">
-                    <i class="fas fa-shopping-cart"></i>
-                </a>
-
-                <c:choose>
-                    <c:when test="${not empty sessionScope.user}">
-                        <a href="${pageContext.request.contextPath}/my-orders" class="icon-btn" title="Tài khoản của bạn">
-                            <i class="fas fa-user"></i>
-                        </a>
-                    </c:when>
-                    <c:otherwise>
-                        <a href="${pageContext.request.contextPath}/login" class="icon-btn" title="Đăng nhập">
-                            <i class="fas fa-user"></i>
-                        </a>
-                    </c:otherwise>
-                </c:choose>
-            </div>
-
-            <!-- Danh mục -->
-            <div class="category-box" id="categoryBox">
-                <c:forEach var="cat" items="${categoryList}">
-                    <a href="${pageContext.request.contextPath}/list-product?categoryId=${cat.id}" class="category-item">
-                        <img src="${cat.image != null && cat.image.startsWith('http') ? cat.image : pageContext.request.contextPath.concat('/').concat(cat.image)}"
-                             alt="${cat.name}"
-                             style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;">
-
-                            ${cat.name}
-                        <i class="fa-solid fa-chevron-right" style="margin-left: auto;"></i>
+            <c:choose>
+                <c:when test="${not empty sessionScope.user}">
+                    <a href="${pageContext.request.contextPath}/user" class="icon-btn" title="Tài khoản của bạn">
+                        <i class="fas fa-user"></i>
                     </a>
-                </c:forEach>
-            </div>
+                </c:when>
+                <c:otherwise>
+                    <a href="${pageContext.request.contextPath}/login" class="icon-btn" title="Đăng nhập">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </c:otherwise>
+            </c:choose>
         </div>
-    </header>
+
+        <!-- Danh mục -->
+        <div class="category-box" id="categoryBox">
+            <c:forEach items="${applicationScope.categoryList}" var="cat">
+                <a href="list-product?id=${cat.id}" class="category-item">
+                    <c:set var="imageSrc" value="${cat.image}"/>
+                    <c:choose>
+                        <c:when test="${fn:startsWith(imageSrc, 'http')}">
+                            <img src="${imageSrc}" class="category-icon" alt="${cat.name}">
+                        </c:when>
+                        <c:otherwise>
+                            <img src="${pageContext.request.contextPath}/${imageSrc}" class="category-icon" alt="${cat.name}">
+                        </c:otherwise>
+                    </c:choose>
+                        ${cat.name}
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+            </c:forEach>
+        </div>
+    </div>
+</header>
     <!-- Overlay nền mờ -->
     <div class="overlay" id="overlay"></div>
 
@@ -86,14 +112,19 @@
             <div class="home-left">
                 <div class="content-category">
                     <h2>Sản phẩm</h2>
-                    <c:forEach var="cat" items="${categoryList}">
-                        <a href="${pageContext.request.contextPath}/list-product?categoryId=${cat.id}" class="category-item">
-                            <img src="${cat.image != null && cat.image.startsWith('http') ? cat.image : pageContext.request.contextPath.concat('/').concat(cat.image)}"
-                                 alt="${cat.name}"
-                                 style="width: 24px; height: 24px; object-fit: contain; margin-right: 10px;">
-
+                    <c:forEach items="${applicationScope.categoryList}" var="cat">
+                        <a href="list-product?id=${cat.id}" class="category-item">
+                            <c:set var="imageSrc" value="${cat.image}"/>
+                            <c:choose>
+                                <c:when test="${fn:startsWith(imageSrc, 'http')}">
+                                    <img src="${imageSrc}" class="category-icon" alt="${cat.name}">
+                                </c:when>
+                                <c:otherwise>
+                                    <img src="${pageContext.request.contextPath}/${imageSrc}" class="category-icon" alt="${cat.name}">
+                                </c:otherwise>
+                            </c:choose>
                                 ${cat.name}
-                            <i class="fa-solid fa-chevron-right" style="margin-left: auto;"></i>
+                            <i class="fa-solid fa-chevron-right"></i>
                         </a>
                     </c:forEach>
                 </div>
@@ -276,16 +307,9 @@
                                         </div>
                                         <span class="rating-value"><fmt:formatNumber value="${p.avgRating}" pattern="0.0"/></span>
                                     </div>
-                                    <a href="${pageContext.request.contextPath}/toggle-favorite?id=${p.id}" class="action-item like-btn" style="text-decoration: none; border: none; background: none; color: #d70018;">
-                                        <c:choose>
-                                            <c:when test="${p.favorite}">
-                                                <i class="fa-solid fa-heart"></i>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <i class="fa-regular fa-heart"></i>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </a>
+                                    <button class="action-item like-btn" style="border: none; background: none; color: #d70018;">
+                                        <i class="fa-regular fa-heart"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -344,16 +368,9 @@
                                     <span class="rating-value"><fmt:formatNumber value="${p.avgRating}" pattern="0.0"/></span>
                                 </div>
 
-                                <a href="${pageContext.request.contextPath}/toggle-favorite?id=${p.id}" class="action-item like-btn">
-                                    <c:choose>
-                                        <c:when test="${p.favorite}">
-                                            <i class="fa-solid fa-heart"></i>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <i class="fa-regular fa-heart"></i>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </a>
+                                <button class="action-item like-btn">
+                                    <i class="fa-regular fa-heart"></i>
+                                </button>
                             </div>
 
                         </div>
@@ -437,9 +454,6 @@
     <script src="${pageContext.request.contextPath}/js/thongBao.js"></script>
     <script src="${pageContext.request.contextPath}/js/flashSale.js"></script>
     <script src="${pageContext.request.contextPath}/js/dualBannerSlideshow.js"></script>
-
-
-
 
 </body>
 

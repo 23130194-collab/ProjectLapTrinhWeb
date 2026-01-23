@@ -45,17 +45,6 @@ public class OrderDao {
         return new OrderDetail(order, customer, items);
     }
 
-    public RecipientInfo getRecipientInfoByOrderId(int orderId) {
-        String sql = "SELECT * FROM recipient_info WHERE order_id = :orderId";
-        return jdbi.withHandle(handle ->
-                handle.createQuery(sql)
-                        .bind("orderId", orderId)
-                        .mapToBean(RecipientInfo.class)
-                        .findOne()
-                        .orElse(null)
-        );
-    }
-
     public Order getOrderById(int orderId) {
         Order order = jdbi.withHandle(handle ->
                 handle.createQuery("SELECT * FROM orders WHERE id = :orderId")
@@ -75,7 +64,7 @@ public class OrderDao {
 
     public List<OrderItem> getOrderItemsByOrderId(int orderId) {
         String query = "SELECT od.id, od.order_id, od.product_id, od.quantity, " +
-                "od.original_price, od.unit_price, p.name as productName, p.image as productImage " +
+                "od.original_price, od.unit_price, p.name as productName " +
                 "FROM order_details od JOIN products p ON od.product_id = p.id " +
                 "WHERE od.order_id = :orderId";
 
@@ -109,6 +98,8 @@ public class OrderDao {
         );
     }
 
+
+
     public List<Order> searchOrders(String keyword, int page, int pageSize) {
         String searchKeyword = "%" + keyword + "%";
         return jdbi.withHandle(handle ->
@@ -137,24 +128,6 @@ public class OrderDao {
         return jdbi.withHandle(h -> {
             List<Order> orders = h.createQuery(sql)
                     .bind("userId", userId)
-                    .mapToBean(Order.class)
-                    .list();
-            
-            for (Order order : orders) {
-                order.setItems(getOrderItemsByOrderId(order.getId()));
-                order.setRecipientInfo(getRecipientInfoByOrderId(order.getId()));
-            }
-            return orders;
-        });
-    }
-
-    public List<Order> getOrdersByUserIdAndStatus(int userId, String status) {
-        String sql = "SELECT * FROM orders WHERE user_id = :userId AND order_status = :status ORDER BY created_at DESC";
-
-        return jdbi.withHandle(h -> {
-            List<Order> orders = h.createQuery(sql)
-                    .bind("userId", userId)
-                    .bind("status", status)
                     .mapToBean(Order.class)
                     .list();
 
@@ -213,9 +186,10 @@ public class OrderDao {
         );
     }
 
-    public boolean createOrder(Order order, RecipientInfo recipient, Map<Integer, CartItem> cart) {
+    public boolean createOrder(Order order, RecipientInfo recipient, Map<Integer, CartItem> cart, Payment payment) {
         return jdbi.inTransaction(handle -> {
             try {
+                // 1. Chèn vào bảng orders
                 int orderId = handle.createUpdate("INSERT INTO orders (user_id, order_code, order_status, subprice, discount_amount, shipping_fee, total_amount) " +
                                 "VALUES (:userId, :orderCode, :status, :subprice, :discountAmount, :shippingFee, :total)")
                         .bind("userId", order.getUserId())
@@ -227,7 +201,17 @@ public class OrderDao {
                         .bind("total", order.getTotalAmount())
                         .executeAndReturnGeneratedKeys("id")
                         .mapTo(Integer.class).one();
+                order.setId(orderId);
 
+                handle.createUpdate("INSERT INTO payment (order_id, payment_method, payment_status, amount, paid_at, created_at) " +
+                                "VALUES (:orderId, :method, :status, :amount, NOW(), NOW())")
+                        .bind("orderId", orderId)
+                        .bind("method", payment.getPaymentMethod())
+                        .bind("status", "Thành công")
+                        .bind("amount", payment.getAmount())
+                        .execute();
+
+                // 2. Chèn vào bảng recipient_info
                 handle.createUpdate("INSERT INTO recipient_info (order_id, full_name, phone, email, province, district, address_detail) " +
                                 "VALUES (:orderId, :fullName, :phone, :email, :province, :district, :addressDetail)")
                         .bind("orderId", orderId)
@@ -239,12 +223,14 @@ public class OrderDao {
                         .bind("addressDetail", recipient.getAddress())
                         .execute();
 
+                // 3. Duyệt giỏ hàng để chèn vào order_details VÀ CẬP NHẬT TỒN KHO
                 for (CartItem item : cart.values()) {
                     double originalPrice = item.getProduct().getOldPrice();
                     if (originalPrice == 0) {
                         originalPrice = item.getProduct().getPrice();
                     }
 
+                    // Chèn chi tiết đơn hàng
                     handle.createUpdate("INSERT INTO order_details (order_id, product_id, quantity, unit_price, original_price) " +
                                     "VALUES (:orderId, :productId, :quantity, :price, :originalPrice)")
                             .bind("orderId", orderId)
@@ -252,6 +238,16 @@ public class OrderDao {
                             .bind("quantity", item.getQuantity())
                             .bind("price", item.getProduct().getPrice())
                             .bind("originalPrice", originalPrice)
+                            .execute();
+
+                    String updateStockSql = "UPDATE products SET stock = stock - :quantity WHERE id = :productId";
+                    handle.createUpdate(updateStockSql)
+                            .bind("quantity", item.getQuantity())
+                            .bind("productId", item.getProduct().getId())
+                            .execute();
+
+                    handle.createUpdate("UPDATE products SET status = 'inactive' WHERE id = :productId AND stock <= 0")
+                            .bind("productId", item.getProduct().getId())
                             .execute();
                 }
 
@@ -292,4 +288,54 @@ public class OrderDao {
                         .execute() > 0
         );
     }
+
+    public RecipientInfo getRecipientInfoByOrderId(int orderId) {
+        String sql = "SELECT * FROM recipient_info WHERE order_id = :orderId";
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .bind("orderId", orderId)
+                        .mapToBean(RecipientInfo.class)
+                        .findOne()
+                        .orElse(null)
+        );
+    }
+
+    public List<Order> getOrdersByUserIdAndStatus(int userId, String status) {
+        String sql = "SELECT * FROM orders WHERE user_id = :userId AND order_status = :status ORDER BY created_at DESC";
+
+        return jdbi.withHandle(h -> {
+            List<Order> orders = h.createQuery(sql)
+                    .bind("userId", userId)
+                    .bind("status", status)
+                    .mapToBean(Order.class)
+                    .list();
+
+            for (Order order : orders) {
+                order.setItems(getOrderItemsByOrderId(order.getId()));
+                order.setRecipientInfo(getRecipientInfoByOrderId(order.getId())); // Thêm thông tin người nhận
+            }
+            return orders;
+        });
+    }
+
+    // Tính tổng doanh thu từ các đơn hàng thành công (Đã giao)
+    public double getTotalRevenue() {
+        return jdbi.withHandle(handle ->
+                handle.createQuery("SELECT SUM(total_amount) FROM orders WHERE order_status = 'Đã giao'")
+                        .mapTo(Double.class)
+                        .findOne()
+                        .orElse(0.0)
+        );
+    }
+
+    // Đếm tổng số lượng đơn hàng trong hệ thống
+    public int getTotalOrdersCount() {
+        return jdbi.withHandle(handle ->
+                handle.createQuery("SELECT COUNT(*) FROM orders")
+                        .mapTo(Integer.class)
+                        .one()
+        );
+    }
+
+
 }

@@ -19,8 +19,8 @@
 
     <h1 class="message">Đặt hàng thành công!</h1>
 
-    <a href="#" class="btn-product">Xem đơn hàng</a>
-    <a href="#" class="btn-product">Quay lại trang chủ</a>
+    <a href="${pageContext.request.contextPath}/user" class="btn-product">Xem đơn hàng</a>
+    <a href="${pageContext.request.contextPath}/home" class="btn-product">Quay lại trang chủ</a>
 
 
 </div>

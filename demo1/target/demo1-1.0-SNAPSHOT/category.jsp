@@ -1,4 +1,5 @@
-
+<%@ page import="com.example.demo1.model.CartItem" %>
+<%@ page import="java.util.Map" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -13,38 +14,65 @@
     <title>${category.name} | TechNova</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/mucSanPham.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/mucSanPham.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
 </head>
 <body>
 <header class="header">
     <div class="header-container">
-        <a href="home.jsp" class="logo">
+        <a href="${pageContext.request.contextPath}/home" class="logo">
             <img src="https://i.postimg.cc/Hn4Jc3yj/logo-2.png" alt="TechNova Logo">
             <span class="brand-name">TechNova</span>
         </a>
 
         <nav class="nav-links">
-            <a href="home.jsp" class="active">Trang chủ</a>
-            <a href="gioiThieu.jsp">Giới thiệu</a>
+            <a href="${pageContext.request.contextPath}/home" class="active">Trang chủ</a>
+            <a href="${pageContext.request.contextPath}/gioiThieu.jsp">Giới thiệu</a>
             <a href="#" id="category-toggle">Danh mục</a>
-            <a href="lienHe.jsp">Liên hệ</a>
+            <a href="${pageContext.request.contextPath}/contact">Liên hệ</a>
         </nav>
 
         <div class="search-box">
-            <input type="text" placeholder="Bạn muốn mua gì hôm nay?">
-            <button><i class="fas fa-search"></i></button>
+            <form action="search" method="get" id="searchForm" style="display: flex; width: 100%;">
+                <input type="text" name="keyword" id="searchInput"
+                       placeholder="Bạn muốn mua gì hôm nay?" autocomplete="off">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+            <div id="suggestion-box" class="suggestion-box" style="display:none;"></div>
         </div>
 
         <div class="header-actions">
-            <a href="cart.jsp" class="icon-btn" title="Giỏ hàng">
+
+            <%
+                int totalQuantity = 0;
+                Map<Integer, CartItem> cart = (Map<Integer, CartItem>) session.getAttribute("cart");
+
+                if (cart != null) {
+                    totalQuantity = cart.size();
+                }
+            %>
+
+            <a href="${pageContext.request.contextPath}/AddCart?action=view" class="icon-btn cart-btn-wrapper" title="Giỏ hàng">
                 <i class="fas fa-shopping-cart"></i>
+
+                <% if (totalQuantity > 0) { %>
+                <span class="cart-badge"><%= totalQuantity %></span>
+                <% } %>
             </a>
 
-            <a href="user.jsp" class="icon-btn" title="Tài khoản của bạn">
-                <i class="fas fa-user"></i>
-            </a>
+            <c:choose>
+                <c:when test="${not empty sessionScope.user}">
+                    <a href="${pageContext.request.contextPath}/user" class="icon-btn" title="Tài khoản của bạn">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </c:when>
+                <c:otherwise>
+                    <a href="${pageContext.request.contextPath}/login" class="icon-btn" title="Đăng nhập">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </c:otherwise>
+            </c:choose>
         </div>
 
         <!-- Danh mục -->
@@ -74,7 +102,7 @@
     <div class="container">
         <!-- Breadcrumb -->
         <div class="breadcrumb">
-            <a href="index.html" class="path">Trang chủ</a>
+            <a href="${pageContext.request.contextPath}/home" class="path">Trang chủ</a>
             <span class="separator">/</span>
             <a href="list-product?id=${category.id}" class="path">${category.name}</a>
         </div>
@@ -270,16 +298,9 @@
                     </div>
 
                     <!-- Yêu thích -->
-                    <a href="${pageContext.request.contextPath}/toggle-favorite?id=${p.id}" class="action-item like-btn" style="text-decoration: none; border: none; background: none; color: #d70018;">
-                        <c:choose>
-                            <c:when test="${p.favorite}">
-                                <i class="fa-solid fa-heart"></i>
-                            </c:when>
-                            <c:otherwise>
-                                <i class="fa-regular fa-heart"></i>
-                            </c:otherwise>
-                        </c:choose>
-                    </a>
+                    <button class="action-item like-btn">
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
 
                 </div>
             </div>

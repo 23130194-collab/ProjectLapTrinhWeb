@@ -24,7 +24,7 @@ public class ChangePasswordServlet extends HttpServlet {
         User userInSession = (User) session.getAttribute("user");
 
         if (userInSession == null) {
-            response.sendRedirect(request.getContextPath() + "/login"); // Đã sửa
+            response.sendRedirect(request.getContextPath() + "/login.jsp");
             return;
         }
 

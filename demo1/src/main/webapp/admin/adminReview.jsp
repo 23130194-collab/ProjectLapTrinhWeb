@@ -12,12 +12,13 @@
     <title>TechNova Admin - Quản lý Đánh giá</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="${contextPath}/admin/admincss/headerAndSidebar.css">
+    <link rel="stylesheet" href="${contextPath}/admin/admincss/adminNotification.css">
     <link rel="stylesheet" href="${contextPath}/admin/admincss/adminReview.css?v=2.5">
 </head>
 
 <body>
 
-
+<!-- Sidebar -->
 <aside class="sidebar">
     <div class="logo">
         <a href="${contextPath}/admin/dashboard" style="text-decoration: none;">
@@ -43,8 +44,54 @@
 
 <header class="header">
     <div class="header-actions">
+        <button class="notification-btn" id="notificationBtn">
+            <i class="fa-solid fa-bell"></i>
+            <c:if test="${adminUnreadCount > 0}">
+                <span class="notification-badge">${adminUnreadCount}</span>
+            </c:if>
+        </button>
+        <div class="notification-dropdown" id="notificationDropdown">
+            <div class="notification-header">
+                <h3>Thông báo</h3>
+            </div>
+
+            <div class="notification-list">
+                <c:if test="${empty adminNotiList}">
+                    <p style="padding: 10px; text-align: center;">Không có thông báo mới</p>
+                </c:if>
+
+                <c:forEach var="noti" items="${adminNotiList}">
+                    <div class="notification-item ${noti.isRead == 0 ? 'unread' : ''}"
+                         onclick="window.location.href='${contextPath}/admin/mark-read?id=${noti.id}&target=' + encodeURIComponent('${noti.link}')">
+
+                        <div class="notification-icon">
+                            <c:choose>
+                                <c:when test="${noti.content.toLowerCase().contains('hủy')}">
+                                    <i class="fa-solid fa-circle-xmark" style="color: #4c4747;;"></i>
+                                </c:when>
+                                <c:when test="${noti.content.toLowerCase().contains('mới')}">
+                                    <i class="fa-solid fa-cart-shopping" style="color: #4c4747;"></i>
+                                </c:when>
+                                <c:otherwise>
+                                    <i class="fa-solid fa-bell" style="color: #4c4747;;"></i>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                        <div class="notification-content">
+                            <p class="notification-text">${noti.content}</p>
+                            <span class="notification-time">${noti.createdAt}</span>
+                        </div>
+                    </div>
+                </c:forEach>
+            </div>
+
+            <div class="notification-footer">
+                <a href="${contextPath}/admin/notifications" class="see-all-link">Xem tất cả thông báo</a>
+            </div>
+        </div>
         <div class="user-profile">
-            <img src="https://i.postimg.cc/520657yN/profile.jpg" alt="User Profile">
+            <img src="https://www.shutterstock.com/image-vector/admin-icon-strategy-collection-thin-600nw-2307398667.jpg"
+                 alt="User Profile">
         </div>
     </div>
 </header>
@@ -62,6 +109,7 @@
             </div>
         </div>
 
+        <!-- Hiển thị thông báo -->
         <c:if test="${not empty sessionScope.successMessage}">
             <div class="alert alert-success">${sessionScope.successMessage}</div>
             <c:remove var="successMessage" scope="session"/>
@@ -71,8 +119,9 @@
             <c:remove var="errorMessage" scope="session"/>
         </c:if>
 
+        <!-- FORM CHỈNH SỬA -->
         <c:if test="${not empty reviewToEdit}">
-            <form action="${contextPath}/admin/reviews" method="post" class="review-form" id="reviewForm">
+            <form action="${contextPath}/admin/reviews" method="post" class="review-form">
                 <input type="hidden" name="action" value="update">
                 <input type="hidden" name="reviewId" value="${reviewToEdit.id}">
                 <input type="hidden" name="page" value="${currentPage}">
@@ -95,7 +144,7 @@
                             </select>
                         </div>
                         <div class="form-buttons">
-                            <a href="#confirm-save-modal" class="btn btn-primary">Cập nhật</a>
+                            <button type="submit" class="btn btn-primary">Cập nhật</button>
                             <a href="${contextPath}/admin/reviews?page=${currentPage}&status=${selectedStatus}&searchKeyword=${searchKeyword}" class="btn btn-secondary">Hủy</a>
                         </div>
                     </div>
@@ -103,6 +152,7 @@
             </form>
         </c:if>
 
+        <!-- BỘ LỌC VÀ TÌM KIẾM -->
         <div class="filter-bar">
             <div class="filter-tabs">
                 <a href="${contextPath}/admin/reviews?status=all&searchKeyword=${searchKeyword}" class="tab ${empty selectedStatus or selectedStatus == 'all' ? 'active' : ''}">Tất cả</a>
@@ -118,6 +168,7 @@
             </form>
         </div>
 
+        <!-- BẢNG DỮ LIỆU -->
         <div class="table-container">
             <table class="review-table">
                 <thead>
@@ -166,6 +217,7 @@
             </table>
         </div>
 
+        <!-- PHÂN TRANG -->
         <c:if test="${totalPages > 1}">
             <div class="pagination-container">
                 <c:if test="${currentPage > 1}">
@@ -182,16 +234,90 @@
     </div>
 </main>
 
-<div id="confirm-save-modal" class="modal-overlay">
+<!-- MODAL HIỂN THỊ NỘI DUNG -->
+<div id="contentModal" class="modal-overlay">
     <div class="modal-content">
-        <h3>Xác nhận lưu</h3>
-        <p>Bạn có chắc chắn muốn lưu các thay đổi này không?</p>
-        <div class="modal-buttons">
-            <a href="#" class="modal-btn modal-cancel">Hủy</a>
-            <button type="submit" form="reviewForm" class="modal-btn modal-confirm">Lưu</button>
-        </div>
+        <button class="modal-close-btn">&times;</button>
+        <div class="modal-header" id="modalHeader"></div>
+        <div class="modal-body" id="modalBody"></div>
     </div>
 </div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                alert.style.display = 'none';
+            }, 5000);
+        });
+
+        const searchInput = document.getElementById('searchInput');
+        if(searchInput) {
+            searchInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    this.form.submit();
+                }
+            });
+        }
+
+        const modal = document.getElementById('contentModal');
+        const modalHeader = document.getElementById('modalHeader');
+        const modalBody = document.getElementById('modalBody');
+        const table = document.querySelector('.review-table');
+
+        if (table) {
+            table.addEventListener('click', function(event) {
+                const target = event.target;
+                if (target.classList.contains('truncate-text')) {
+                    const content = target.getAttribute('title');
+                    // Xác định xem đó là tên sản phẩm hay nội dung
+                    if (target.closest('.col-product')) {
+                        modalHeader.textContent = 'Tên sản phẩm';
+                    } else if (target.closest('.col-content')) {
+                        modalHeader.textContent = 'Nội dung đánh giá';
+                    } else {
+                        modalHeader.textContent = 'Chi tiết';
+                    }
+                    modalBody.textContent = content;
+                    modal.classList.add('visible');
+                }
+            });
+        }
+
+        // Đóng modal
+        function closeModal() {
+            modal.classList.remove('visible');
+        }
+
+        modal.querySelector('.modal-close-btn').addEventListener('click', closeModal);
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("notificationBtn");
+        const dropdown = document.getElementById("notificationDropdown");
+
+        btn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            dropdown.classList.toggle("show");
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.remove("show");
+            }
+        });
+    });
+</script>
 
 </body>
 </html>

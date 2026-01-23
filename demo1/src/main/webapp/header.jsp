@@ -4,6 +4,7 @@
 <%@ page import="com.example.demo1.model.CartItem" %>
 
 <%
+    // Tính tổng số lượng sản phẩm trong giỏ
     int totalQuantity = 0;
     Map<Integer, CartItem> cart = (Map<Integer, CartItem>) session.getAttribute("cart");
     if (cart != null) {
@@ -43,18 +44,19 @@
 
             <c:choose>
                 <c:when test="${not empty sessionScope.user}">
-                    <a href="${pageContext.request.contextPath}/account" class="icon-btn active" title="Tài khoản của bạn">
+                    <a href="${pageContext.request.contextPath}/user" class="icon-btn" title="Tài khoản của bạn">
                         <i class="fas fa-user"></i>
                     </a>
                 </c:when>
                 <c:otherwise>
-                    <a href="${pageContext.request.contextPath}/login" class="icon-btn" title="Đăng nhập">
+                    <a href="${pageContext.request.contextPath}/login.jsp" class="icon-btn" title="Đăng nhập">
                         <i class="fas fa-user"></i>
                     </a>
                 </c:otherwise>
             </c:choose>
         </div>
 
+        <!-- Danh mục -->
         <div class="category-box" id="categoryBox">
             <c:forEach var="cat" items="${applicationScope.categoryList}">
                 <a href="${pageContext.request.contextPath}/list-product?categoryId=${cat.id}" class="category-item">
@@ -64,4 +66,5 @@
         </div>
     </div>
 </header>
+<!-- Overlay nền mờ -->
 <div class="overlay" id="overlay"></div>

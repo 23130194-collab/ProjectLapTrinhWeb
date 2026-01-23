@@ -90,7 +90,6 @@ body {
 /* Nút yêu thích */
 .like-btn {
     color: #a19f9f;
-    text-decoration: none; /* Thêm dòng này để bỏ gạch chân */
 }
 
 .like-btn i {
@@ -102,23 +101,19 @@ body {
 .like-btn:hover,
 .like-btn:hover i,
 .like-btn:hover .action-label {
-    color: #d70018;
+    color: #db1d32;
 }
 
 /* Khi được click (focus) → đỏ + trái tim đầy */
 .like-btn:focus,
 .like-btn:focus i,
 .like-btn:focus .action-label {
-    color: #d70018;
+    color: #db1d32;
     outline: none;
 }
 
 .like-btn:focus i {
     font-weight: 900; /* fa-solid */
-}
-
-.like-btn .fa-solid.fa-heart {
-    color: #d70018;
 }
 
 /* Nút thông số */
@@ -1109,10 +1104,8 @@ body {
     /*border: 2px solid #e0e0e0;*/
     white-space: nowrap;
     background: white;
-    border: 1px solid #e0e0e0; /* Thêm border mặc định */
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s;
 }
 
 .rating-option:hover {
@@ -1345,6 +1338,12 @@ body {
     transform: translateY(-2px);
 }
 
+.btn-scroll-top i {
+    margin-left: 4px;
+    font-size: 12px;
+}
+
+
 .rating-input,
 .filter-input {
     position: absolute;
@@ -1399,7 +1398,6 @@ body {
     font-size: 12px;
     color: #666;
     font-weight: 500;
-
 }
 
 .filter-btn {

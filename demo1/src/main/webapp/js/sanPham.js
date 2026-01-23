@@ -124,21 +124,25 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // --- Xử lý Gửi Form Đánh giá ---
-    const reviewForm = document.getElementById('form-review-product');
+    // --- Xử lý nút Gửi đánh giá (Chỉ lấy nội dung, không xử lý gì thêm) ---
+    const btnSubmitReview = document.querySelector('.btn-submit-review');
     const txtReviewContent = document.querySelector('.review-comment-box textarea');
 
-    if (reviewForm && txtReviewContent) {
-        reviewForm.addEventListener('submit', (e) => {
+    if (btnSubmitReview && txtReviewContent) {
+        btnSubmitReview.addEventListener('click', (e) => {
+            e.preventDefault(); // Ngăn form submit theo cách truyền thống
             // 1. Lấy nội dung comment
             const content = txtReviewContent.value;
 
-            // 2. Kiểm tra nội dung
+            // 2. Lấy số sao (dựa vào radio button đang được check)
+            const ratingInput = document.querySelector('input[name="rating"]:checked');
+            const star = ratingInput ? ratingInput.value : '5';
+
             if (content.trim() === "") {
                 alert("Bạn chưa nhập nội dung đánh giá!");
-                e.preventDefault(); // Ngăn form được gửi đi
+            } else {
+                document.getElementById('form-review-product').submit();
             }
-            // Nếu nội dung hợp lệ, không làm gì cả, để form tự gửi đi
         });
     }
 

@@ -171,4 +171,10 @@ public class ProductService {
 
         return products;
     }
+
+    CategoryDao cdao = new CategoryDao();
+
+    public Category getCategory(int categoryId) {
+        return cdao.getById(categoryId);
+    }
 }

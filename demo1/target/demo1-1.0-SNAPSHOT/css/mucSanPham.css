@@ -623,7 +623,6 @@ body {
 /* === YÊU THÍCH === */
 .like-btn {
     color: #a19f9f;
-    text-decoration: none;
 }
 
 .like-btn i {
@@ -635,23 +634,19 @@ body {
 .like-btn:hover,
 .like-btn:hover i,
 .like-btn:hover .action-label {
-    color: #d70018;
+    color: #db1d32;
 }
 
 /* Khi được click (focus) → đỏ + trái tim đầy */
 .like-btn:focus,
 .like-btn:focus i,
 .like-btn:focus .action-label {
-    color: #d70018;
+    color: #db1d32;
     outline: none;
 }
 
 .like-btn:focus i {
     font-weight: 900; /* fa-solid */
-}
-
-.like-btn .fa-solid.fa-heart {
-    color: #d70018;
 }
 
 /* PHÂN TRANG (PAGINATION) */

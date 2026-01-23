@@ -1,6 +1,10 @@
+<%@ page import="com.example.demo1.model.CartItem" %>
+<%@ page import="java.util.Map" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <fmt:setLocale value="vi_VN"/>
 
 <!DOCTYPE html>
@@ -10,8 +14,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sản phẩm | TechNova</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sanPham.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&display=swap" rel="stylesheet">
 
@@ -20,31 +24,58 @@
 <!-- Header -->
 <header class="header">
     <div class="header-container">
-        <a href="home.jsp" class="logo">
+        <a href="${pageContext.request.contextPath}/home" class="logo">
             <img src="https://i.postimg.cc/Hn4Jc3yj/logo-2.png" alt="TechNova Logo">
             <span class="brand-name">TechNova</span>
         </a>
 
         <nav class="nav-links">
-            <a href="home.jsp" class="active">Trang chủ</a>
-            <a href="gioiThieu.jsp">Giới thiệu</a>
+            <a href="${pageContext.request.contextPath}/home" class="active">Trang chủ</a>
+            <a href="${pageContext.request.contextPath}/gioiThieu.jsp">Giới thiệu</a>
             <a href="#" id="category-toggle">Danh mục</a>
-            <a href="lienHe.jsp">Liên hệ</a>
+            <a href="${pageContext.request.contextPath}/contact">Liên hệ</a>
         </nav>
 
         <div class="search-box">
-            <input type="text" placeholder="Bạn muốn mua gì hôm nay?">
-            <button><i class="fas fa-search"></i></button>
+            <form action="search" method="get" id="searchForm" style="display: flex; width: 100%;">
+                <input type="text" name="keyword" id="searchInput"
+                       placeholder="Bạn muốn mua gì hôm nay?" autocomplete="off">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+            <div id="suggestion-box" class="suggestion-box" style="display:none;"></div>
         </div>
 
         <div class="header-actions">
-            <a href="cart.jsp" class="icon-btn" title="Giỏ hàng">
+
+            <%
+                int totalQuantity = 0;
+                Map<Integer, CartItem> cart = (Map<Integer, CartItem>) session.getAttribute("cart");
+
+                if (cart != null) {
+                    totalQuantity = cart.size();
+                }
+            %>
+
+            <a href="${pageContext.request.contextPath}/AddCart?action=view" class="icon-btn cart-btn-wrapper" title="Giỏ hàng">
                 <i class="fas fa-shopping-cart"></i>
+
+                <% if (totalQuantity > 0) { %>
+                <span class="cart-badge"><%= totalQuantity %></span>
+                <% } %>
             </a>
 
-            <a href="user.jsp" class="icon-btn" title="Tài khoản của bạn">
-                <i class="fas fa-user"></i>
-            </a>
+            <c:choose>
+                <c:when test="${not empty sessionScope.user}">
+                    <a href="${pageContext.request.contextPath}/user" class="icon-btn" title="Tài khoản của bạn">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </c:when>
+                <c:otherwise>
+                    <a href="${pageContext.request.contextPath}/login" class="icon-btn" title="Đăng nhập">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </c:otherwise>
+            </c:choose>
         </div>
 
 
@@ -52,8 +83,15 @@
         <div class="category-box" id="categoryBox">
             <c:forEach items="${applicationScope.categoryList}" var="cat">
                 <a href="list-product?id=${cat.id}" class="category-item">
-                        <%-- Thay thế icon bằng ảnh --%>
-                    <img src="${cat.image}" class="category-icon" alt="${cat.name}">
+                    <c:set var="imageSrc" value="${cat.image}"/>
+                    <c:choose>
+                        <c:when test="${fn:startsWith(imageSrc, 'http')}">
+                            <img src="${imageSrc}" class="category-icon" alt="${cat.name}">
+                        </c:when>
+                        <c:otherwise>
+                            <img src="${pageContext.request.contextPath}/${imageSrc}" class="category-icon" alt="${cat.name}">
+                        </c:otherwise>
+                    </c:choose>
                         ${cat.name}
                     <i class="fa-solid fa-chevron-right"></i>
                 </a>
@@ -67,9 +105,10 @@
 <main>
     <div class="all">
         <div class="breadcrumb">
-            <a href="index.jsp" class="path">Trang chủ</a>
+            <a href="${pageContext.request.contextPath}/home" class="path">Trang chủ</a>
             <span class="separator">/</span>
-            <a href="mainboard.jsp" class="path">RAM</a>
+            <%-- Bây giờ biến category đã tồn tại và có dữ liệu --%>
+            <a href="list-product?id=${category.id}" class="path">${category.name}</a>
             <span class="separator">/</span>
             <span>${p.name}</span>
         </div>
@@ -81,17 +120,10 @@
                 <h2>${p.name}</h2>
                 <div class="product-actions">
                     <!-- Yêu thích -->
-                    <a href="${pageContext.request.contextPath}/toggle-favorite?id=${p.id}" class="action-item like-btn" style="text-decoration: none; border: none; background: none; color: #d70018;">
-                        <c:choose>
-                            <c:when test="${p.favorite}">
-                                <i class="fa-solid fa-heart"></i>
-                            </c:when>
-                            <c:otherwise>
-                                <i class="fa-regular fa-heart"></i>
-                            </c:otherwise>
-                        </c:choose>
+                    <button class="action-item like-btn">
+                        <i class="fa-regular fa-heart"></i>
                         <span class="action-label">Yêu thích</span>
-                    </a>
+                    </button>
 
                     <span class="separator">|</span>
 
@@ -242,22 +274,16 @@
                                 <span class="rating-value"><fmt:formatNumber value="${rp.avgRating}"
                                                                              pattern="0.0"/></span>
                             </div>
-                            <a href="${pageContext.request.contextPath}/toggle-favorite?id=${rp.id}" class="action-item like-btn" title="Thêm vào yêu thích">
-                                <c:choose>
-                                    <c:when test="${rp.favorite}">
-                                        <i class="fa-solid fa-heart"></i>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <i class="fa-regular fa-heart"></i>
-                                    </c:otherwise>
-                                </c:choose>
-                            </a>
+                            <button class="action-item like-btn" title="Thêm vào yêu thích">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
                         </div>
                     </div>
                 </c:forEach>
             </div>
         </div>
 
+        <!-- Phần đánh giá sản phẩm -->
         <div class="product-reviews-section">
             <div class="reviews-header">
                 <h3 class="section-title">Đánh giá ${p.name}</h3>
@@ -279,7 +305,7 @@
                             <button class="btn-write-review" id="btn-write-review">Viết đánh giá</button>
                         </c:when>
                         <c:otherwise>
-                            <a href="login" class="btn-write-review">Viết đánh giá</a>
+                            <a href="${pageContext.request.contextPath}/login" class="btn-write-review">Viết đánh giá</a>
                         </c:otherwise>
                     </c:choose>
                 </div>
@@ -323,9 +349,6 @@
             </div>
 
 
-            <div style="color: red; font-weight: bold; margin: 10px 0;">
-                DEBUG: Tìm thấy ${reviews.size()} đánh giá trong list.
-            </div>
             <div class="reviews-list">
                 <c:forEach items="${reviews}" var="r">
                     <div class="review-item" data-rating="${r.rating}">
@@ -448,23 +471,18 @@
                         <div class="price-old"><fmt:formatNumber value="${p.oldPrice}" pattern="#,###"/>đ</div>
                     </c:if>
                 </div>
-                <button class="btn-buy-now js-buy-now"
-                        data-id="${p.id}"
-                        data-name="${p.name}"
-                        data-price="${p.price}"
-                        data-old-price="${p.oldPrice}"
-                        data-img="${p.image}">
+                <a href="AddCart?action=buyNow&id=${p.id}"
+                   class="btn-buy-now js-buy-now"
+                   role="button">
                     MUA NGAY
-                </button>
+                </a>
 
-                <button class="btn-add-cart js-add-cart"
-                        data-id="${p.id}"
-                        data-name="${p.name}"
-                        data-price="${p.price}"
-                        data-old-price="${p.oldPrice}"
-                        data-img="${p.image}">
+
+                <a href="AddCart?action=add&id=${p.id}"
+                   class="btn-add-cart js-add-cart"
+                   role="button">
                     <i class="fa-solid fa-cart-shopping"></i>
-                </button>
+                </a>
             </div>
         </div>
     </div>

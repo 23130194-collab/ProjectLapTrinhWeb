@@ -52,16 +52,54 @@
     <div class="header-actions">
         <button class="notification-btn" id="notificationBtn">
             <i class="fa-solid fa-bell"></i>
-            <span class="notification-badge">3</span>
+            <c:if test="${adminUnreadCount > 0}">
+                <span class="notification-badge">${adminUnreadCount}</span>
+            </c:if>
         </button>
+        <div class="notification-dropdown" id="notificationDropdown">
+            <div class="notification-header">
+                <h3>Thông báo</h3>
+            </div>
 
-        <div class="notification-dropdown" id="notificationDropdown"></div>
+            <div class="notification-list">
+                <c:if test="${empty adminNotiList}">
+                    <p style="padding: 10px; text-align: center;">Không có thông báo mới</p>
+                </c:if>
 
+                <c:forEach var="noti" items="${adminNotiList}">
+                    <div class="notification-item ${noti.isRead == 0 ? 'unread' : ''}"
+                         onclick="window.location.href='${contextPath}/admin/mark-read?id=${noti.id}&target=' + encodeURIComponent('${noti.link}')">
+                        <div class="notification-icon">
+                            <c:choose>
+                                <c:when test="${noti.content.toLowerCase().contains('hủy')}">
+                                    <i class="fa-solid fa-circle-xmark" style="color: #4c4747;;"></i>
+                                </c:when>
+                                <c:when test="${noti.content.toLowerCase().contains('mới')}">
+                                    <i class="fa-solid fa-cart-shopping" style="color: #4c4747;"></i>
+                                </c:when>
+                                <c:otherwise>
+                                    <i class="fa-solid fa-bell" style="color: #4c4747;;"></i>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                        <div class="notification-content">
+                            <p class="notification-text">${noti.content}</p>
+                            <span class="notification-time">${noti.createdAt}</span>
+                        </div>
+                    </div>
+                </c:forEach>
+            </div>
+
+            <div class="notification-footer">
+                <a href="adminAllNotification.jsp" class="see-all-link">Xem tất cả thông báo</a>
+            </div>
+        </div>
         <div class="user-profile">
             <img src="https://www.shutterstock.com/image-vector/admin-icon-strategy-collection-thin-600nw-2307398667.jpg"
                  alt="User Profile">
         </div>
     </div>
+
 </header>
 
 <main class="main-content">
@@ -78,15 +116,24 @@
         </div>
 
         <c:if test="${not empty sessionScope.successMessage}">
-            <div class="alert alert-success"><c:out value="${sessionScope.successMessage}" escapeXml="false"/></div>
+            <div class="alert alert-success">
+                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <c:out value="${sessionScope.successMessage}" escapeXml="false"/>
+            </div>
             <c:remove var="successMessage" scope="session"/>
         </c:if>
         <c:if test="${not empty sessionScope.errorMessage}">
-            <div class="alert alert-danger"><c:out value="${sessionScope.errorMessage}" escapeXml="false"/></div>
+            <div class="alert alert-danger">
+                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <c:out value="${sessionScope.errorMessage}" escapeXml="false"/>
+            </div>
             <c:remove var="errorMessage" scope="session"/>
         </c:if>
         <c:if test="${not empty requestScope.errorMessage}">
-            <div class="alert alert-danger"><c:out value="${requestScope.errorMessage}" escapeXml="false"/></div>
+            <div class="alert alert-danger">
+                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+                <c:out value="${requestScope.errorMessage}" escapeXml="false"/>
+            </div>
         </c:if>
 
         <form action="${contextPath}/admin/categories" method="post" enctype="multipart/form-data" class="category-form" id="categoryForm">
@@ -231,6 +278,38 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                // Làm mờ dần
+                alert.style.opacity = '0';
+                // Sau khi mờ xong (0.5s) thì ẩn hẳn
+                setTimeout(function() {
+                    alert.style.display = 'none';
+                }, 500);
+            }, 5000);
+        });
+    });
+</script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("notificationBtn");
+        const dropdown = document.getElementById("notificationDropdown");
+
+        btn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            dropdown.classList.toggle("show");
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.remove("show");
+            }
+        });
+    });
+</script>
 </body>
 </html>

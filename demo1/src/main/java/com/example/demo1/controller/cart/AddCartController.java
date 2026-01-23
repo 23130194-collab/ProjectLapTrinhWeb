@@ -1,6 +1,8 @@
 package com.example.demo1.controller.cart;
 
+import com.example.demo1.dao.ProductDao; // [Thêm mới]
 import com.example.demo1.model.CartItem;
+import com.example.demo1.model.Product; // [Thêm mới]
 import com.example.demo1.model.User;
 import com.example.demo1.service.CartService;
 import jakarta.servlet.*;
@@ -13,6 +15,7 @@ import java.util.Map;
 @WebServlet(name = "AddCartController", value = "/AddCart")
 public class AddCartController extends HttpServlet {
     private CartService cartService = new CartService();
+    private ProductDao productDao = new ProductDao();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -21,11 +24,11 @@ public class AddCartController extends HttpServlet {
 
         User user = (User) session.getAttribute("user");
         if (user == null) {
-            response.sendRedirect(request.getContextPath() + "/login"); // Đã sửa
+            response.sendRedirect("login.jsp");
             return;
         }
-        Map<Integer, CartItem> cart = (Map<Integer, CartItem>) session.getAttribute("cart");
 
+        Map<Integer, CartItem> cart = (Map<Integer, CartItem>) session.getAttribute("cart");
         if (cart == null) {
             cart = new HashMap<>();
             session.setAttribute("cart", cart);
@@ -35,11 +38,37 @@ public class AddCartController extends HttpServlet {
             int id = (request.getParameter("id") != null) ? Integer.parseInt(request.getParameter("id")) : 0;
 
             if ("add".equals(action)) {
+                Product product = productDao.getById(id);
+
+                int currentQty = (cart.containsKey(id)) ? cart.get(id).getQuantity() : 0;
+                int totalDesired = currentQty + 1;
+
+                if (product != null && totalDesired > product.getStock()) {
+                    session.setAttribute("cartError", "Không thể thêm. Sản phẩm " + product.getName() + " chỉ còn " + product.getStock() + " cái.");
+                    response.sendRedirect("AddCart?action=view");
+                    return;
+                }
+
                 cartService.addToCart(cart, id, 1);
                 response.sendRedirect("AddCart?action=view");
             }
+
             else if ("update".equals(action)) {
                 int num = Integer.parseInt(request.getParameter("num"));
+
+                Product product = productDao.getById(id);
+                CartItem currentItem = cart.get(id);
+                int currentQtyInCart = (currentItem != null) ? currentItem.getQuantity() : 0;
+
+                int futureQuantity = currentQtyInCart + num;
+
+                if (num > 0 && product != null && futureQuantity > product.getStock()) {
+                    // Báo lỗi
+                    session.setAttribute("cartError", "Không thể tăng. Kho chỉ còn " + product.getStock() + " sản phẩm.");
+                    response.sendRedirect("AddCart?action=view");
+                    return;
+                }
+
                 cartService.updateQuantity(cart, id, num);
                 response.sendRedirect("AddCart?action=view");
             }
@@ -48,6 +77,15 @@ public class AddCartController extends HttpServlet {
                 response.sendRedirect("AddCart?action=view");
             }
             else if ("buyNow".equals(action)) {
+                Product product = productDao.getById(id);
+                int currentQty = (cart.containsKey(id)) ? cart.get(id).getQuantity() : 0;
+
+                if (product != null && (currentQty + 1) > product.getStock()) {
+                    session.setAttribute("cartError", "Sản phẩm " + product.getName() + " đã hết hàng hoặc không đủ số lượng.");
+                    response.sendRedirect("AddCart?action=view");
+                    return;
+                }
+
                 cartService.addToCart(cart, id, 1);
                 response.sendRedirect("AddCart?action=checkout");
             }
@@ -61,6 +99,7 @@ public class AddCartController extends HttpServlet {
                 request.getRequestDispatcher("/thanhToan.jsp").forward(request, response);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             response.sendRedirect("home.jsp");
         }
     }

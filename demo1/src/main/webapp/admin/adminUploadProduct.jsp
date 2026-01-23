@@ -20,63 +20,26 @@
 <!-- Sidebar -->
 <aside class="sidebar">
     <div class="logo">
-        <a href="${contextPath}/admin/adminDashboard.jsp">
+        <a href="${contextPath}/admin/dashboard">
             <img src="https://i.postimg.cc/Hn4Jc3yj/logo-2.png" alt="TechNova Logo">
         </a>
-        <a href="${contextPath}/admin/adminDashboard.jsp" style="text-decoration: none;">
+        <a href="${contextPath}/admin/dashboard" style="text-decoration: none;">
             <span class="logo-text">TechNova</span>
         </a>
     </div>
     <ul class="nav-menu">
-        <li class="nav-item">
-            <a href="${contextPath}/admin/adminDashboard.jsp" class="nav-link">
-                <span class="nav-icon"><i class="fa-solid fa-border-all"></i></span>
-                Dashboard
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="${contextPath}/admin/customersList.jsp" class="nav-link">
-                <span class="nav-icon"><i class="fa-solid fa-users"></i></span>
-                Khách hàng
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="${contextPath}/admin/adminCategories.jsp" class="nav-link">
-                <span class="nav-icon"><i class="fa-solid fa-list"></i></span>
-                Mục sản phẩm
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="${contextPath}/admin/brands" class="nav-link">
-                <span class="nav-icon"><i class="fa-solid fa-certificate"></i></span>
-                Thương hiệu
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="${contextPath}/admin/adminAttributes.jsp" class="nav-link">
-                <span class="nav-icon"><i class="fa-solid fa-sliders"></i></span>
-                Thuộc tính
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="${contextPath}/admin-product-list" class="nav-link active">
-                <span class="nav-icon"><i class="fa-solid fa-box-open"></i></span>
-                Sản phẩm
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="${contextPath}/admin/adminHoaDon.jsp" class="nav-link">
-                <span class="nav-icon"><i class="fa-solid fa-clipboard-list"></i></span>
-                Đơn hàng
-            </a>
-        </li>
+        <li class="nav-item"><a href="${contextPath}/admin/dashboard" class="nav-link"><span class="nav-icon"><i class="fa-solid fa-border-all"></i></span>Dashboard</a></li>
+        <li class="nav-item"><a href="${contextPath}/admin/customers" class="nav-link"><span class="nav-icon"><i class="fa-solid fa-users"></i></span>Khách hàng</a></li>
+        <li class="nav-item"><a href="${contextPath}/admin/categories" class="nav-link"><span class="nav-icon"><i class="fa-solid fa-list"></i></span>Mục sản phẩm</a></li>
+        <li class="nav-item"><a href="${contextPath}/admin/brands" class="nav-link"><span class="nav-icon"><i class="fa-solid fa-certificate"></i></span>Thương hiệu</a></li>
+        <li class="nav-item"><a href="${contextPath}/admin/attributes" class="nav-link"><span class="nav-icon"><i class="fa-solid fa-sliders"></i></span>Thuộc tính</a></li>
+        <li class="nav-item"><a href="${contextPath}/admin/banners" class="nav-link"><span class="nav-icon"><i class="fa-solid fa-images"></i></span>Banner</a></li>
+        <li class="nav-item"><a href="${contextPath}/admin/products" class="nav-link active"><span class="nav-icon"><i class="fa-solid fa-box-open"></i></span>Sản phẩm</a></li>
+        <li class="nav-item"><a href="${contextPath}/admin/orders" class="nav-link"><span class="nav-icon"><i class="fa-solid fa-clipboard-list"></i></span>Đơn hàng</a></li>
+        <li class="nav-item"><a href="${contextPath}/admin/reviews" class="nav-link"><span class="nav-icon"><i class="fa-solid fa-star"></i></span>Đánh giá</a></li>
+
     </ul>
-    <div class="logout-section">
-        <a href="${contextPath}/logout" class="nav-link logout-link">
-            <span class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i></span>
-            Đăng xuất
-        </a>
-    </div>
+    <div class="logout-section"><a href="${contextPath}/logout" class="nav-link logout-link"><span class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i></span>Đăng xuất</a></div>
 </aside>
 
 <!-- Header -->
@@ -84,25 +47,55 @@
     <div class="header-actions">
         <button class="notification-btn" id="notificationBtn">
             <i class="fa-solid fa-bell"></i>
-            <span class="notification-badge">3</span>
+            <c:if test="${adminUnreadCount > 0}">
+                <span class="notification-badge">${adminUnreadCount}</span>
+            </c:if>
         </button>
         <div class="notification-dropdown" id="notificationDropdown">
-            <div class="notification-header"><h3>Thông báo</h3></div>
-            <div class="notification-list">
-                <div class="notification-item">
-                    <div class="notification-icon" style="background: #5b86e5;"><i class="fa-solid fa-box-open"></i></div>
-                    <div class="notification-content">
-                        <p class="notification-text">Đã thêm sản phẩm vào hệ thống <strong>thành công!</strong></p>
-                        <span class="notification-time">20 giây trước</span>
-                    </div>
-                </div>
+            <div class="notification-header">
+                <h3>Thông báo</h3>
             </div>
-            <div class="notification-footer"><a href="#" class="see-all-link">Xem tất cả thông báo</a></div>
+
+            <div class="notification-list">
+                <c:if test="${empty adminNotiList}">
+                    <p style="padding: 10px; text-align: center;">Không có thông báo mới</p>
+                </c:if>
+
+                <c:forEach var="noti" items="${adminNotiList}">
+                    <div class="notification-item ${noti.isRead == 0 ? 'unread' : ''}"
+                         onclick="window.location.href='${contextPath}/admin/mark-read?id=${noti.id}&target=' + encodeURIComponent('${noti.link}')">
+
+                        <div class="notification-icon">
+                            <c:choose>
+                                <c:when test="${noti.content.toLowerCase().contains('hủy')}">
+                                    <i class="fa-solid fa-circle-xmark" style="color: #4c4747;;"></i>
+                                </c:when>
+                                <c:when test="${noti.content.toLowerCase().contains('mới')}">
+                                    <i class="fa-solid fa-cart-shopping" style="color: #4c4747;"></i>
+                                </c:when>
+                                <c:otherwise>
+                                    <i class="fa-solid fa-bell" style="color: #4c4747;;"></i>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                        <div class="notification-content">
+                            <p class="notification-text">${noti.content}</p>
+                            <span class="notification-time">${noti.createdAt}</span>
+                        </div>
+                    </div>
+                </c:forEach>
+            </div>
+
+            <div class="notification-footer">
+                <a href="adminAllNotification.jsp" class="see-all-link">Xem tất cả thông báo</a>
+            </div>
         </div>
         <div class="user-profile">
-            <img src="https://www.shutterstock.com/image-vector/admin-icon-strategy-collection-thin-600nw-2307398667.jpg" alt="User Profile">
+            <img src="https://www.shutterstock.com/image-vector/admin-icon-strategy-collection-thin-600nw-2307398667.jpg"
+                 alt="User Profile">
         </div>
     </div>
+
 </header>
 
 <!-- Main Content -->
@@ -110,7 +103,7 @@
     <div class="content-area">
         <h1 class="page-title">${not empty product ? 'Chỉnh sửa' : 'Thêm'} sản phẩm</h1>
         <div class="breadcrumb">
-            <a href="${contextPath}/admin/adminDashboard.jsp">Trang chủ</a> / <a href="${contextPath}/admin-product-list">Danh sách sản phẩm</a> / <span>${not empty product ? 'Chỉnh sửa' : 'Thêm'} sản phẩm</span>
+            <a href="${contextPath}/admin/adminDashboard">Trang chủ</a> / <a href="${contextPath}/admin/products">Danh sách sản phẩm</a> / <span>${not empty product ? 'Chỉnh sửa' : 'Thêm'} sản phẩm</span>
         </div>
 
         <c:if test="${not empty errorMessage}">
@@ -120,7 +113,7 @@
             </div>
         </c:if>
 
-        <form action="${contextPath}/admin-upload-product" method="post" class="upload-product-container">
+        <form action="${contextPath}/admin/upload-product" method="post" class="upload-product-container">
             <c:if test="${not empty product}">
                 <input type="hidden" name="productId" value="${product.id}">
             </c:if>
@@ -284,7 +277,7 @@
             </div>
 
             <div class="form-actions-footer">
-                <a href="${contextPath}/admin-product-list" class="btn-cancel">Hủy</a>
+                <a href="${contextPath}/admin/products" class="btn-cancel">Hủy</a>
                 <button type="submit" class="btn-complete">Hoàn thành</button>
             </div>
         </form>
@@ -292,10 +285,26 @@
 </main>
 <script src="https://cdn.tiny.cloud/1/3ed7uep3wrojhgtffcu69d19t08h1k9sikr7x4myygwkmrju/tinymce/6/tinymce.min.js" referrerpolicy="origin" defer></script>
 
-<script src="${contextPath}/admin/adminjs/adminNotification.js" defer></script>
 <script>
     const globalContextPath = "${pageContext.request.contextPath}";
 </script>
 <script src="${contextPath}/admin/adminjs/adminUploadProduct.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("notificationBtn");
+        const dropdown = document.getElementById("notificationDropdown");
+
+        btn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            dropdown.classList.toggle("show");
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.remove("show");
+            }
+        });
+    });
+</script>
 </body>
 </html>

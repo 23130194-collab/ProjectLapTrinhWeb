@@ -44,12 +44,12 @@
 
             <c:choose>
                 <c:when test="${not empty sessionScope.user}">
-                    <a href="${pageContext.request.contextPath}/account" class="icon-btn active" title="Tài khoản của bạn">
+                    <a href="${pageContext.request.contextPath}/user" class="icon-btn" title="Tài khoản của bạn">
                         <i class="fas fa-user"></i>
                     </a>
                 </c:when>
                 <c:otherwise>
-                    <a href="${pageContext.request.contextPath}/login" class="icon-btn" title="Đăng nhập">
+                    <a href="${pageContext.request.contextPath}/login.jsp" class="icon-btn" title="Đăng nhập">
                         <i class="fas fa-user"></i>
                     </a>
                 </c:otherwise>

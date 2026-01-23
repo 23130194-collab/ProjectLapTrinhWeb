@@ -34,9 +34,6 @@ public class OrderItem {
 
     public String getProductName() { return productName; }
     public void setProductName(String productName) { this.productName = productName; }
-    public String getProductImage() { return productImage; }
-    public void setProductImage(String productImage) { this.productImage = productImage; }
-
 
     public double getTotal() { return this.unitPrice * this.quantity; }
 
@@ -45,4 +42,11 @@ public class OrderItem {
         if (originalPrice == 0) return 0;
         return ((originalPrice - unitPrice) / originalPrice) * 100;
     }
+    public String getProductImage() {
+        return productImage;
+    }
+    public void setProductImage(String productImage) {
+        this.productImage = productImage;
+    }
+
 }

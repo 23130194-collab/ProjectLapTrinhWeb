@@ -1,7 +1,6 @@
 package com.example.demo1.controller;
 
 import com.example.demo1.dao.BannerDao;
-import com.example.demo1.dao.FavoriteDao;
 import com.example.demo1.dao.NotificationDao;
 import com.example.demo1.model.*;
 import com.example.demo1.service.CategoryService;
@@ -18,7 +17,6 @@ public class HomeController extends HttpServlet {
     ProductService productService = new ProductService();
     CategoryService categoryService = new CategoryService();
     BannerDao bannerDao = new BannerDao();
-    FavoriteDao favoriteDao = new FavoriteDao();
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
@@ -46,18 +44,10 @@ public class HomeController extends HttpServlet {
                 if (p.getOldPrice() > p.getPrice()) {
                     p.setDiscountValue(((p.getOldPrice() - p.getPrice()) / p.getOldPrice()) * 100);
                 }
-                if (user != null) {
-                    p.setFavorite(favoriteDao.isFavorite(user.getId(), p.getId()));
-                }
             }
             request.setAttribute("flashSaleList", flashSaleList);
 
             List<Product> randomProducts = productService.getRandomProducts(8);
-            for (Product p : randomProducts) {
-                if (user != null) {
-                    p.setFavorite(favoriteDao.isFavorite(user.getId(), p.getId()));
-                }
-            }
             request.setAttribute("suggestedProducts", randomProducts);
 
         } catch (Exception e) {

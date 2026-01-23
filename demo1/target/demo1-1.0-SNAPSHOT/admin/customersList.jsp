@@ -2,7 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <fmt:setLocale value="vi_VN" />
-<c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -10,13 +9,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TechNova Admin - Danh sách khách hàng</title>
-    <link rel="stylesheet" href="${contextPath}/admin/admincss/customersList.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admincss/customersList.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="${contextPath}/admin/admincss/adminNotification.css">
-    <link rel="stylesheet" href="${contextPath}/admin/admincss/headerAndSidebar.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admincss/adminNotification.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admincss/headerAndSidebar.css">
 </head>
 
 <body>
+<!-- Sidebar -->
 <aside class="sidebar">
     <div class="logo">
         <a href="${contextPath}/admin/dashboard">
@@ -43,65 +43,46 @@
 
 <!-- Header -->
 <header class="header">
-    <div class="search-box">
-        <span class="search-icon nav-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-        <input type="text" class="search-input" placeholder="Tìm kiếm">
-    </div>
-
     <div class="header-actions">
         <button class="notification-btn" id="notificationBtn">
             <i class="fa-solid fa-bell"></i>
-            <span class="notification-badge">3</span>
+            <c:if test="${adminUnreadCount > 0}">
+                <span class="notification-badge">${adminUnreadCount}</span>
+            </c:if>
         </button>
-
-        <!-- Thông báo -->
         <div class="notification-dropdown" id="notificationDropdown">
             <div class="notification-header">
                 <h3>Thông báo</h3>
             </div>
 
             <div class="notification-list">
-                <div class="notification-item">
-                    <div class="notification-icon" style="background: #5b86e5;">
-                        <i class="fa-solid fa-box-open"></i>
-                    </div>
-                    <div class="notification-content">
-                        <p class="notification-text">Đã thêm sản phẩm vào hệ thống <strong>thành công!</strong></p>
-                        <span class="notification-time">20 giây trước</span>
-                    </div>
-                </div>
+                <c:if test="${empty adminNotiList}">
+                    <p style="padding: 10px; text-align: center;">Không có thông báo mới</p>
+                </c:if>
 
-                <div class="notification-item">
-                    <div class="notification-icon" style="background: #5b86e5;">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                    <div class="notification-content">
-                        <p class="notification-text">Đã thêm tài khoản khách hàng vào hệ thống <strong>thành
-                            công!</strong></p>
-                        <span class="notification-time">20 phút trước</span>
-                    </div>
-                </div>
+                <c:forEach var="noti" items="${adminNotiList}">
+                    <div class="notification-item ${noti.isRead == 0 ? 'unread' : ''}"
+                         onclick="window.location.href='${contextPath}/admin/mark-read?id=${noti.id}&target=' + encodeURIComponent('${noti.link}')">
 
-                <div class="notification-item">
-                    <div class="notification-icon" style="background: #5b86e5;">
-                        <i class="fa-solid fa-file-invoice"></i>
+                        <div class="notification-icon">
+                            <c:choose>
+                                <c:when test="${noti.content.toLowerCase().contains('hủy')}">
+                                    <i class="fa-solid fa-circle-xmark" style="color: #4c4747;;"></i>
+                                </c:when>
+                                <c:when test="${noti.content.toLowerCase().contains('mới')}">
+                                    <i class="fa-solid fa-cart-shopping" style="color: #4c4747;"></i>
+                                </c:when>
+                                <c:otherwise>
+                                    <i class="fa-solid fa-bell" style="color: #4c4747;;"></i>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                        <div class="notification-content">
+                            <p class="notification-text">${noti.content}</p>
+                            <span class="notification-time">${noti.createdAt}</span>
+                        </div>
                     </div>
-                    <div class="notification-content">
-                        <p class="notification-text">Đã cập nhật hóa đơn #1988001 vào hệ thống <strong>thành
-                            công!</strong></p>
-                        <span class="notification-time">5 giờ trước</span>
-                    </div>
-                </div>
-
-                <div class="notification-item">
-                    <div class="notification-icon" style="background: #5b86e5;">
-                        <i class="fa-solid fa-box-open"></i>
-                    </div>
-                    <div class="notification-content">
-                        <p class="notification-text">Đã thêm sản phẩm vào hệ thống <strong>thành công!</strong></p>
-                        <span class="notification-time">12 giờ trước</span>
-                    </div>
-                </div>
+                </c:forEach>
             </div>
 
             <div class="notification-footer">
@@ -113,6 +94,7 @@
                  alt="User Profile">
         </div>
     </div>
+
 </header>
 
 <!-- Main Content -->
@@ -120,53 +102,43 @@
     <div class="content-area">
         <div class="page-header">
             <h1 class="page-title">Danh sách khách hàng</h1>
-            <a href="${contextPath}/admin/adminThemKhachHang.jsp" class="add-customer-btn">
-                <i class="fa-solid fa-user-plus"></i> Thêm khách hàng
-            </a>
+<%--            <a href="${pageContext.request.contextPath}/admin/adminThemKhachHang.jsp" class="add-customer-btn">--%>
+<%--                <i class="fa-solid fa-user-plus"></i> Thêm khách hàng--%>
+<%--            </a>--%>
         </div>
 
         <div class="breadcrumb">
-            <a href="${contextPath}/admin/dashboard" class="breadcrumb-link">Trang chủ</a>
+            <a href="${pageContext.request.contextPath}/admin/adminDashboard.jsp" class="breadcrumb-link">Trang chủ</a>
             <span class="breadcrumb-separator">/</span>
             <span class="breadcrumb-current">Danh sách khách hàng</span>
         </div>
 
-        <%-- HIỂN THỊ THÔNG BÁO --%>
-        <c:if test="${not empty sessionScope.successMessage}">
-            <div class="alert alert-success">
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                ${sessionScope.successMessage}
-            </div>
-            <c:remove var="successMessage" scope="session"/>
-        </c:if>
-        <c:if test="${not empty sessionScope.errorMessage}">
-            <div class="alert alert-danger">
-                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
-                ${sessionScope.errorMessage}
-            </div>
-            <c:remove var="errorMessage" scope="session"/>
-        </c:if>
-
         <div class="filter-section" style="margin-top: 15px; margin-bottom: 15px;">
             <form action="${contextPath}/admin/customers" method="get">
+<%--                <label for="statusSelect" style="font-weight: bold; margin-right: 10px;">Lọc theo trạng thái:</label>--%>
+
                 <select name="status" id="statusSelect" onchange="this.form.submit()"
                         style="padding: 8px 12px; border-radius: 5px; border: 1px solid #ccc; font-size: 14px; min-width: 150px;">
+
                     <option value="all" ${param.status == 'all' || empty param.status ? 'selected' : ''}>
                         -- Tất cả --
                     </option>
-                    <option value="active" ${param.status == 'active' ? 'selected' : ''}>
+
+                    <option value="Active" ${param.status == 'Active' ? 'selected' : ''}>
                         Đang hoạt động
                     </option>
-                    <option value="locked" ${param.status == 'locked' ? 'selected' : ''}>
+
+                    <option value="Locked" ${param.status == 'Locked' ? 'selected' : ''}>
                         Đã khóa
                     </option>
-                    <option value="unverified" ${param.status == 'unverified' ? 'selected' : ''}>
-                        Chưa xác thực
-                    </option>
                 </select>
+
+                <%-- Giữ lại từ khóa tìm kiếm nếu đang tìm --%>
                 <input type="hidden" name="keyword" value="${param.keyword}">
             </form>
         </div>
+
+
 
         <div class="customer-list">
             <table class="customer-table">
@@ -177,54 +149,67 @@
                     <th>Email</th>
                     <th>Đơn hàng</th>
                     <th>Tham gia</th>
-                    <th>Trạng thái</th>
                     <th>Thao tác</th>
                 </tr>
                 </thead>
                 <tbody id="customerTableBody">
+                <%-- Kiểm tra nếu danh sách rỗng thì hiện thông báo --%>
                 <c:if test="${empty customerList}">
                     <tr>
-                        <td colspan="7" style="text-align: center;">Không có dữ liệu khách hàng nào trong Database.</td>
+                        <td colspan="6" style="text-align: center;">Không có dữ liệu khách hàng nào trong Database.</td>
                     </tr>
                 </c:if>
+
+                <%-- Vòng lặp duyệt danh sách customerList được gửi từ Controller --%>
                 <c:forEach var="u" items="${customerList}" varStatus="status">
                     <tr>
                         <td style="text-align: center;">${(currentPage - 1) * 5 + status.index + 1}</td>
+
                         <td>
-                            <a href="${contextPath}/admin/customer-detail?id=${u.id}" class="customer-link">
+                            <a href="${pageContext.request.contextPath}/admin/customer-detail?id=${u.id}" class="customer-link">
                                 <div class="reviewer-avatar">
                                         ${u.name != null ? u.name.substring(0, 1).toUpperCase() : "?"}
                                 </div>
                                     ${u.name}
                             </a>
                         </td>
+
                         <td>${u.email}</td>
+
                         <td style="text-align: center;">${u.orderCount}</td>
+
                         <td>
                             <fmt:formatDate value="${u.created_at}" pattern="dd/MM/yyyy"/>
                         </td>
-                        <td>
-                            <span class="status ${u.status == 'active' ? 'status-active' : (u.status == 'locked' ? 'status-locked' : 'status-unverified')}">
-                                <c:choose>
-                                    <c:when test="${u.status == 'active'}">Hoạt động</c:when>
-                                    <c:when test="${u.status == 'locked'}">Đã khóa</c:when>
-                                    <c:otherwise>Chưa xác thực</c:otherwise>
-                                </c:choose>
-                            </span>
-                        </td>
+
+<%--                        <td>--%>
+<%--                            <div class="action-buttons">--%>
+<%--                                <a href="${pageContext.request.contextPath}/admin/customer-detail?id=${u.id}" class="action-btn edit" title="Sửa">--%>
+<%--                                    <i class="fa-solid fa-pen"></i>--%>
+<%--                                </a>--%>
+<%--                                <a href="#" class="action-btn delete" title="Khóa" onclick="return confirm('Bạn có chắc muốn khóa user này?')">--%>
+<%--                                    <i class="fa-solid fa-lock"></i>--%>
+<%--                                </a>--%>
+<%--                            </div>--%>
+<%--                        </td>--%>
                         <td>
                             <div class="action-buttons">
                                 <a href="${contextPath}/admin/customer-detail?id=${u.id}" class="action-btn edit" title="Sửa">
                                     <i class="fa-solid fa-pen"></i>
                                 </a>
-                                <a href="#confirm-lock-modal-${u.id}" class="action-btn delete" title="${u.status == 'locked' ? 'Mở khóa' : 'Khóa tài khoản'}">
+
+                                <a href="${contextPath}/admin/lock-customer?id=${u.id}"
+                                   class="action-btn delete"
+                                   style="background-color: ${u.status == 'Locked' ? '#fee2e2' : '#e0f2fe'};
+                                           color: ${u.status == 'Locked' ? '#b91c1c' : '#0284c7'};"
+                                   title="${u.status == 'Locked' ? 'Mở khóa' : 'Khóa tài khoản'}"
+                                   onclick="return confirm('Bạn có chắc muốn ${u.status == 'Locked' ? 'mở khóa' : 'khóa'} tài khoản này?')">
+
                                     <c:choose>
-                                        <c:when test="${u.status == 'locked'}">
-                                            <i class="fa-solid fa-lock-open"></i>
-                                        </c:when>
+                                        <c:when test="${u.status == 'Locked'}">
+                                            <i class="fa-solid fa-lock"></i> </c:when>
                                         <c:otherwise>
-                                            <i class="fa-solid fa-lock"></i>
-                                        </c:otherwise>
+                                            <i class="fa-solid fa-lock-open"></i> </c:otherwise>
                                     </c:choose>
                                 </a>
                             </div>
@@ -236,72 +221,50 @@
 
             <c:if test="${totalPages > 1}">
                 <div class="pagination-container">
+
+                        <%-- Nút Previous --%>
                     <c:if test="${currentPage > 1}">
                         <a href="${contextPath}/admin/customers?page=${currentPage - 1}&keyword=${keyword}&status=${param.status}" class="pagination-btn">
                             <i class="fa-solid fa-chevron-left"></i>
                         </a>
                     </c:if>
+
+                        <%-- Các số trang --%>
                     <c:forEach var="i" begin="1" end="${totalPages}">
                         <a href="${contextPath}/admin/customers?page=${i}&keyword=${keyword}&status=${param.status}"
                            class="page-number ${currentPage == i ? 'active' : ''}">
                                 ${i}
                         </a>
                     </c:forEach>
+
+                        <%-- Nút Next --%>
                     <c:if test="${currentPage < totalPages}">
                         <a href="${contextPath}/admin/customers?page=${currentPage + 1}&keyword=${keyword}&status=${param.status}" class="pagination-btn">
                             <i class="fa-solid fa-chevron-right"></i>
                         </a>
                     </c:if>
-                </div>
-            </c:if>
+
+                </div> </c:if>
         </div>
     </div>
 </main>
 
-<!-- MODALS -->
-<c:forEach var="u" items="${customerList}">
-    <div id="confirm-lock-modal-${u.id}" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Xác nhận ${u.status == 'locked' ? 'mở khóa' : 'khóa'} tài khoản</h3>
-            <p>Bạn có chắc chắn muốn ${u.status == 'locked' ? 'mở khóa' : 'khóa'} tài khoản của khách hàng "${u.name}" không?</p>
-            <div class="modal-buttons">
-                <a href="#" class="modal-btn modal-cancel">Hủy</a>
-                <a href="${contextPath}/admin/lock-customer?id=${u.id}&status=${u.status == 'locked' ? 'active' : 'locked'}" class="modal-btn modal-confirm">
-                    ${u.status == 'locked' ? 'Mở khóa' : 'Khóa'}
-                </a>
-            </div>
-        </div>
-    </div>
-</c:forEach>
-
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(function(alert) {
-            const closeBtn = alert.querySelector('.close-btn');
+    document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("notificationBtn");
+        const dropdown = document.getElementById("notificationDropdown");
 
-            const autoClose = setTimeout(function() {
-                closeAlert(alert);
-            }, 5000);
-
-            if (closeBtn) {
-                closeBtn.addEventListener('click', function() {
-                    clearTimeout(autoClose);
-                    closeAlert(alert);
-                });
-            }
+        btn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            dropdown.classList.toggle("show");
         });
 
-        function closeAlert(alert) {
-            if (alert) {
-                alert.style.opacity = '0';
-                setTimeout(function() {
-                    if (alert) alert.style.display = 'none';
-                }, 500);
+        document.addEventListener("click", function (e) {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.remove("show");
             }
-        }
+        });
     });
 </script>
-
 </body>
 </html>

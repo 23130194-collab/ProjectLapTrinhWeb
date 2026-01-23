@@ -22,6 +22,7 @@ public class ProductDao {
             "d.end_time AS discountEnd, " +
             "IFNULL(ROUND(AVG(r.rating), 1), 0) AS avgRating ";
 
+    // Helper class to hold query parts
     private static class QueryParts {
         String whereSql;
         String joinSql;
@@ -52,8 +53,8 @@ public class ProductDao {
             params.put("status", status);
         }
         if (keyword != null && !keyword.isEmpty()) {
-            whereSql.append(" AND p.name LIKE :keyword");
-            params.put("keyword", "%" + keyword + "%");
+            whereSql.append(" AND (LOWER(p.name) LIKE :keyword)");
+            params.put("keyword", "%" + keyword.toLowerCase() + "%");
         }
         if (brandId != null) {
             whereSql.append(" AND p.brand_id = :brandId");
@@ -141,6 +142,10 @@ public class ProductDao {
     public ProductPage filterAndSortProducts(Integer categoryId, String status, String keyword, Integer brandId, Map<Integer, List<String>> specFilters, String sortOrder, int page, int pageSize) {
         return jdbi.withHandle(handle -> {
             QueryParts queryParts = buildQueryParts(categoryId, status, keyword, brandId, specFilters);
+
+//            if ("popular".equals(sortOrder)) {
+//                queryParts.whereSql += " AND p.sold_quantity > 0 ";
+//            }
 
             int totalProducts = countTotalProducts(handle, queryParts, specFilters);
 
@@ -253,6 +258,7 @@ public class ProductDao {
                         .execute());
     }
 
+    // Thêm hàm này vào trong class ProductDao
     public List<Product> getRandomProducts(int limit) {
         return jdbi.withHandle(handle ->
                 handle.createQuery("SELECT * FROM products WHERE status = 'active' ORDER BY RAND() LIMIT :limit")
@@ -268,6 +274,49 @@ public class ProductDao {
                         .bind("qty", quantity)
                         .bind("id", productId)
                         .execute()
+        );
+    }
+
+    // Thêm vào com/example/demo1/dao/ProductDao.java
+
+//    public List<Product> searchByNameForSuggestion(String keyword, int limit) {
+//        String sql = "SELECT id, name, price, image, old_price FROM products " +
+//                "WHERE status = 'active' AND name LIKE :keyword " +
+//                "ORDER BY sold_quantity DESC " +
+//                "LIMIT :limit";
+//
+//        return jdbi.withHandle(handle ->
+//                handle.createQuery(sql)
+//                        .bind("keyword", "%" + keyword + "%")
+//                        .bind("limit", limit)
+//                        .mapToBean(Product.class)
+//                        .list()
+//        );
+//    }
+
+    public List<Product> searchByNameForSuggestion(String keyword, int limit) {
+        // Sử dụng LOWER để tìm kiếm không phân biệt hoa thường
+        // Bind keyword đã được toLowerCase() để khớp dữ liệu
+        String sql = "SELECT id, name, price, image, old_price FROM products " +
+                "WHERE status = 'active' AND LOWER(name) LIKE :keyword " +
+                "ORDER BY sold_quantity DESC " +
+                "LIMIT :limit";
+
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .bind("keyword", "%" + keyword.toLowerCase() + "%")
+                        .bind("limit", limit)
+                        .mapToBean(Product.class)
+                        .list()
+        );
+    }
+
+    // Đếm số lượng sản phẩm đang hoạt động (không tính sản phẩm ẩn)
+    public int getActiveProductsCount() {
+        return jdbi.withHandle(handle ->
+                handle.createQuery("SELECT COUNT(*) FROM products WHERE status = 'active'")
+                        .mapTo(Integer.class)
+                        .one()
         );
     }
 }

@@ -15,10 +15,9 @@ public class LogoutController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session != null) {
-            session.removeAttribute("user");
-            session.removeAttribute("auth");
-            session.invalidate();
+            session.removeAttribute("auth"); // Xóa thuộc tính 'auth'
+            session.invalidate(); // Hủy toàn bộ session
         }
-        response.sendRedirect(request.getContextPath() + "/home");
+        response.sendRedirect("home.jsp"); // Chuyển hướng về trang chủ
     }
 }
